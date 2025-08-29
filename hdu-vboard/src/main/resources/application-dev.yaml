@@ -59,3 +59,13 @@ logging:
 cors:
   allowed-origins:
     "http://localhost:5173"
+
+# constants
+script:
+  pyPath:
+    "/usr/bin/python3"
+  filePath:
+    "src/main/python/script/create_workbench.py"
+verilator:
+  path:
+    "/usr/local/bin/verilator"

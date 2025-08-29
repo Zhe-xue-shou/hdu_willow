@@ -17,6 +17,7 @@ import com.hdu.vboard.util.VirtualBoardUtil;
 import com.hdu.svccmn.util.ParamUtil;
 import com.hdu.svccmn.service.UserStatisticService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -37,6 +38,15 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
   @Resource
   UserStatisticService userStatisticService;
 
+  @Value("${script.pyPath}")
+  private String pyPath;
+
+  @Value("${script.filePath}")
+  private String scriptPath;
+
+  @Value("${verilator.path}")
+  private String verilatorPath;
+
   @Override
   public Boolean createWorkbench(String workspaceName, List<String> verilogFullPaths, String bindFullPath) throws Exception {
     for (String verilogFullPath : verilogFullPaths) {
@@ -49,10 +59,10 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     }
 
     // 脚本路径
-    String scriptFullPath = VbSysFileUtil.getRootBasePath() + "src/main/python/script/create_workbench.py";
+    String scriptFullPath = VbSysFileUtil.getRootBasePath() + scriptPath;
 
     List<String> command = new ArrayList<>();
-    command.add("python3");
+    command.add(pyPath);
     command.add(scriptFullPath);
 
     command.add("--workspace-name");
@@ -66,6 +76,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     command.add("--top-module");
     command.add("top");
+
+    command.add("--verilator-path");
+    command.add(verilatorPath);
 
     log.debug("python command:\n{}", command);
 

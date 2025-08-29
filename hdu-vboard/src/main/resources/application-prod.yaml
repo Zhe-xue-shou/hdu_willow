@@ -59,3 +59,13 @@ logging:
 cors:
   allowed-origins:
     "TODO"
+
+  # constants
+  script:
+    pyPath:
+      "TODO"
+    filePath:
+      "TODO"
+  verilator:
+    path:
+      "TODO"

@@ -94,7 +94,9 @@ int main(int argc, char **argv) {{
     print(f"Generated {output_file} successfully.")
 
 
-def create_workspace(workspace_name, module_name, verilog_files, bind_file):
+def create_workspace(
+        workspace_name, module_name, verilog_files, bind_file, verilator_path
+):
     # 工作区基础路径
     base_dir = os.path.abspath(workspace_name)
 
@@ -136,11 +138,11 @@ def create_workspace(workspace_name, module_name, verilog_files, bind_file):
     # 生成 Makefile
     makefile_path = os.path.join(base_dir, "Makefile")
     with open(makefile_path, "w") as f:
-        f.write(generate_makefile_content(module_name))
+        f.write(generate_makefile_content(module_name, verilator_path))
     print(f"Generated Makefile: {makefile_path}")
 
 
-def generate_makefile_content(topname):
+def generate_makefile_content(topname, verilator_path):
     """
     生成动态 Makefile 内容，TOPNAME 替换为模块名。
     """
@@ -148,7 +150,7 @@ def generate_makefile_content(topname):
 TOPNAME = {topname}
 
 # Verilator 编译器配置
-VERILATOR = verilator
+VERILATOR = {verilator_path}
 VERILATOR_CFLAGS += -MMD --build -cc -O3 --x-assign fast --x-initial fast --noassert
 
 # 构建目录和输出二进制文件
@@ -204,20 +206,31 @@ def main():
         "--workspace-name", required=True, help="Name of the workspace to create."
     )
     parser.add_argument(
-        "--verilog-files",nargs='+' ,required=True, help="Path to the Verilog (.v) file."
+        "--verilog-files",
+        nargs="+",
+        required=True,
+        help="Path to the Verilog (.v) file.",
     )
     parser.add_argument(
         "--bind-json", required=True, help="Path to the bind.json file."
     )
+    parser.add_argument("--verilator-path", required=True, help="Verilator path")
     parser.add_argument(
-        '--top-module',required=True,help='Top module name, deault: "top"',default="top"
+        "--top-module",
+        required=False,
+        help='Top module name, deault: "top"',
+        default="top",
     )
 
     args = parser.parse_args()
 
     try:
         create_workspace(
-            args.workspace_name, args.top_module, args.verilog_files, args.bind_json
+            args.workspace_name,
+            args.top_module,
+            args.verilog_files,
+            args.bind_json,
+            args.verilator_path,
         )
     except Exception as e:
         print(f"Error: {e}")
