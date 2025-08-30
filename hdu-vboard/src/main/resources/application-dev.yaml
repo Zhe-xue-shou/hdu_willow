@@ -53,9 +53,9 @@ dubbo:
       namespace: c29600b0-2e5d-450b-bab0-e56d78292d51
   metadata-report:
     address: nacos://localhost:8848
-logging:
-  level:
-    com.hdu.vboard: debug
+#logging:
+#  level:
+#    com.hdu.vboard: debug
 cors:
   allowed-origins:
     "http://localhost:5173"

@@ -58,7 +58,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     if (!workbenchDir.exists()) {
       boolean created = workbenchDir.mkdirs();  // 递归创建目录
       if (!created) {
-        throw new RuntimeException("无法创建工作目录: " + workbenchDir.getAbsolutePath());
+        throw new RuntimeException("cannot create dirctory: " + workbenchDir.getAbsolutePath());
+      } else {
+        log.info("dirctory:{} create success", workbenchDir);
       }
     }
 
@@ -89,7 +91,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     ProcessBuilder builder = new ProcessBuilder(command);
     builder.directory(workbenchDir);
     builder.redirectErrorStream(true);
-    log.debug(workbenchDir.toString());
 
     Process createProcess = builder.start();
 
@@ -191,10 +192,11 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     return VirtualBoardUtil.getSignalFromVirtualBoard(simulationWorkerBO.simOutput);
   }
 
-  // 先停止线程 再清理工作区文件
+  // 先清理文件，再停止线程，防止资源泄露
   @Override
   public Boolean stopWorkbench(String workspaceName) throws Exception {
     redisUtil.del(VbRedisConstant.REDIS_VB_TTL_PREFIX + workspaceName);
+    clearWorkbench(workspaceName);
     SimulationWorkerBO simulationWorkerBO = simulationWorkers.remove(workspaceName);
     if (simulationWorkerBO == null) {
       throw new MakeWorkbenchException("simulation workbench does not exist");
@@ -212,8 +214,10 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
   @Override
   public Boolean clearWorkbench(String workspaceName) throws Exception {
     String workbenchFullPath = VbSysFileUtil.getFullWorkbenchPath(workspaceName);
+    // 不存在可能是被提前清理，不算error
     if (!FileUtil.exist(workbenchFullPath)) {
-      throw new CreateWorkbenchException("workbench does not exist");
+      log.warn("workbench:{} does not exist", workspaceName);
+      return false;
     }
     VbSysFileUtil.deleteDirectory(new File(workbenchFullPath));
     return true;

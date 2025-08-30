@@ -26,7 +26,7 @@ public class VbSysFileServiceImpl implements VbSysFileService {
       String filePath = VbSysFileUtil.getFullSavePath(token) + "/" + originalFileName;
       FileUtil.del(filePath);
       VbSysFileUtil.saveFile(verilogFile, filePath);
-      log.debug("Verilog file saved to {} successfully!", filePath);
+      log.debug("Verilog file {} saved to {} successfully!", originalFileName, filePath);
       return filePath;
     } else {
       throw new InvalidFileSuffixException("文件后缀不为.v");

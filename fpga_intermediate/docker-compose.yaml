@@ -137,6 +137,8 @@ services:
 #      - mysql
 #      - redis
 #      - nacos
+#    networks:
+#      - fpga-net
 
 
 networks:

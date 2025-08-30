@@ -25,11 +25,11 @@ public class VbSysFileUtil {
   // vboard工作区根目录
   public static String getRootBasePath() {
     String absolutePath = FileUtil.getAbsolutePath(".");
-    log.error("absolutePath:{}", absolutePath);
+    log.debug("absolutePath:{}", absolutePath);
     // 如果在jar包内
     if (absolutePath.contains("jar")) {
       String[] split = absolutePath.split("[^/]+\\.jar!");
-      log.info("jar包路径:{}", split[0]);
+      log.debug("jar包路径:{}", split[0]);
       String absoluteTempPath = split[0];
       if (absoluteTempPath.contains("target/")) {
         return FileUtil.getAbsolutePath(absoluteTempPath + "../");
@@ -39,7 +39,7 @@ public class VbSysFileUtil {
     }
     // 如果只是在target内
     if (absolutePath.contains("target/")) {
-//      log.debug("return path:{}", FileUtil.getAbsolutePath("../../"));
+      log.debug("return path:{}", FileUtil.getAbsolutePath("../../"));
       return FileUtil.getAbsolutePath("../../");
     }
     return absolutePath;

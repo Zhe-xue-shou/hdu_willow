@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 hdu-vboard/vb/
 hdu-vboard/src/test/
+hdu-vboard/logs/
 .attach_pid*
 
 
