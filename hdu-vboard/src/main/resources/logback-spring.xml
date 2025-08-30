@@ -9,7 +9,7 @@
         <property name="APP_NAME" value="hdu-vboard"/>
         <property name="LOG_PATH" value="./logs"/>
 
-        <!-- 控制台日志：只打印 ERROR -->c
+        <!-- 控制台日志：只打印 ERROR -->
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
                 <level>ERROR</level>
@@ -20,7 +20,7 @@
             </encoder>
         </appender>
 
-        <!-- 文件日志：保存 DEBUG 以上级别，按天滚动 -->
+        <!-- 文件日志，按天滚动 -->
         <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${LOG_PATH}/${APP_NAME}.log</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -35,8 +35,13 @@
             </encoder>
         </appender>
 
-        <!-- 根日志：DEBUG 打到文件，ERROR 打到控制台 -->
-        <root level="DEBUG">
+        <!-- 自己包INFO及以上 -->
+        <logger name="com.hdu.vboard" level="INFO" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </logger>
+        <!-- 其他包只显示ERROR -->
+        <root level="ERROR">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </root>

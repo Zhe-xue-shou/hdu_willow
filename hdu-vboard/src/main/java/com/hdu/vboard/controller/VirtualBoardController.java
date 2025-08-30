@@ -72,7 +72,7 @@ public class VirtualBoardController /*extends BaseController<VirtualBoardService
                       HttpServletRequest request) {
     String workspaceName = request.getHeader("token");
     try {
-      log.debug("Hello token: {}", workspaceName);
+      log.info("Hello token: {}", workspaceName);
       List<String> verilogFullPaths = new ArrayList<>();
       for (MultipartFile verilogFile : verilogFiles) {
         String path = vbSysFileService.saveVerilogFile(request, verilogFile);

@@ -106,6 +106,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       FileUtil.del(VbSysFileUtil.getFullWorkbenchPath(workspaceName));
       throw new CreateWorkbenchException(errMsg.toString());
     }
+    log.info("create simulation workspace success for token:{}", workspaceName);
     redisUtil.set(VbRedisConstant.REDIS_VB_TTL_PREFIX + workspaceName, true, VbRedisConstant.REDIS_VB_TTL_LIMIT, TimeUnit.SECONDS);
 
     return true;
@@ -161,7 +162,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     SimulationWorkerBO simulationWorkerBO =
         new SimulationWorkerBO(workspaceName, simProcess, simInput, simOutput, true);
-    log.info("Simulation process started for workspace: {}", workspaceName);
+    log.info("Simulation process started for token: {}", workspaceName);
     simulationWorkers.put(workspaceName, simulationWorkerBO);
     redisUtil.set(VbRedisConstant.REDIS_VB_TTL_PREFIX + workspaceName, true, VbRedisConstant.REDIS_VB_TTL_LIMIT, TimeUnit.SECONDS);
     return simulationWorkerBO;
@@ -205,7 +206,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     simulationWorkerBO.simInput.write((char) -1);
     if (simulationWorkerBO.simulationProcess.isAlive()) {
       simulationWorkerBO.simulationProcess.destroy();
-      log.debug("workbench:{} stopped!", workspaceName);
+      log.info("simulation process:{} stopped!", workspaceName);
     }
     return true;
   }
@@ -220,6 +221,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       return false;
     }
     VbSysFileUtil.deleteDirectory(new File(workbenchFullPath));
+    log.info("workbench:{} cleared!", workspaceName);
     return true;
   }
 }
