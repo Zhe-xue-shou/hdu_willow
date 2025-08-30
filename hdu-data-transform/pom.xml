@@ -54,7 +54,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.hdu.hdufpga.HduDataTransformApplication</mainClass>
+                    <mainClass>com.hdu.vboard.VirtualBoardApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

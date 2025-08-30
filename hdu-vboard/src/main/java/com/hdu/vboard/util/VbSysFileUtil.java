@@ -1,6 +1,7 @@
 package com.hdu.vboard.util;
 
 import cn.hutool.core.io.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileExistsException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -8,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+@Slf4j
 public class VbSysFileUtil {
   public static void saveFile(MultipartFile multipartFile, String fullPath) throws IOException {
     if (multipartFile.isEmpty()) return;
@@ -20,9 +22,24 @@ public class VbSysFileUtil {
     multipartFile.transferTo(file);
   }
 
+  // vboard工作区根目录
   public static String getRootBasePath() {
     String absolutePath = FileUtil.getAbsolutePath(".");
+    log.error("absolutePath:{}", absolutePath);
+    // 如果在jar包内
+    if (absolutePath.contains("jar")) {
+      String[] split = absolutePath.split("[^/]+\\.jar!");
+      log.info("jar包路径:{}", split[0]);
+      String absoluteTempPath = split[0];
+      if (absoluteTempPath.contains("target/")) {
+        return FileUtil.getAbsolutePath(absoluteTempPath + "../");
+      }else{
+        return FileUtil.getAbsolutePath(absoluteTempPath);
+      }
+    }
+    // 如果只是在target内
     if (absolutePath.contains("target/")) {
+//      log.debug("return path:{}", FileUtil.getAbsolutePath("../../"));
       return FileUtil.getAbsolutePath("../../");
     }
     return absolutePath;
@@ -37,7 +54,7 @@ public class VbSysFileUtil {
   // |__save      // namespace下保存top.v和bind.json
   // |__workbench // namespace下保存工作区
   public static String getSavePath(String dirName) {
-    String basePath = getVbBasePath();
+    String basePath = getRootBasePath()+getVbBasePath();
     if (Objects.equals(dirName, "")) {
       basePath += "save";
     } else {
@@ -51,7 +68,7 @@ public class VbSysFileUtil {
   }
 
   public static String getWorkbenchPath(String dirName) {
-    String basePath = getVbBasePath();
+    String basePath = getRootBasePath()+getVbBasePath();
     if (Objects.equals(dirName, "")) {
       basePath += "workbench";
     } else {

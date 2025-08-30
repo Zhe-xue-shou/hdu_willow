@@ -127,6 +127,11 @@ public class VirtualBoardController /*extends BaseController<VirtualBoardService
       virtualBoardService.sendSignal(token, signalJson.get("data").toString());
       return Result.ok(virtualBoardService.getSignalFromVirtualBoard(token));
     } catch (Exception e) {
+      try {
+        virtualBoardService.clearWorkbench(token);
+      } catch (Exception ex) {
+        log.error(ex.getMessage());
+      }
       log.error(e.getMessage());
       return Result.error(e.getMessage());
     }

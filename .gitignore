@@ -5,6 +5,8 @@ target/
 !**/src/test/**/target/
 hdu-vboard/vb/
 hdu-vboard/src/test/
+.attach_pid*
+
 
 ### STS ###
 .apt_generated

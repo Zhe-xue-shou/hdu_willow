@@ -1,11 +1,7 @@
 package com.hdu.vboard.service.impl;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONObject;
-import com.hdu.hdufpga.entity.Result;
-import com.hdu.hdufpga.entity.constant.RedisConstant;
-import com.hdu.hdufpga.entity.vo.UserVO;
 import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.vboard.entity.bo.SimulationWorkerBO;
 import com.hdu.vboard.entity.constant.VbRedisConstant;
@@ -14,7 +10,6 @@ import com.hdu.vboard.exception.MakeWorkbenchException;
 import com.hdu.vboard.service.VirtualBoardService;
 import com.hdu.vboard.util.VbSysFileUtil;
 import com.hdu.vboard.util.VirtualBoardUtil;
-import com.hdu.svccmn.util.ParamUtil;
 import com.hdu.svccmn.service.UserStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,6 +53,15 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       throw new CreateWorkbenchException("bind file does not exist");
     }
 
+    File workbenchDir = new File(VbSysFileUtil.getFullWorkbenchPath(""));
+
+    if (!workbenchDir.exists()) {
+      boolean created = workbenchDir.mkdirs();  // 递归创建目录
+      if (!created) {
+        throw new RuntimeException("无法创建工作目录: " + workbenchDir.getAbsolutePath());
+      }
+    }
+
     // 脚本路径
     String scriptFullPath = VbSysFileUtil.getRootBasePath() + scriptPath;
 
@@ -83,9 +87,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     log.debug("python command:\n{}", command);
 
     ProcessBuilder builder = new ProcessBuilder(command);
-    builder.directory(new File(VbSysFileUtil.getFullWorkbenchPath("")));
+    builder.directory(workbenchDir);
     builder.redirectErrorStream(true);
-    log.debug("workbench path:{}", VbSysFileUtil.getFullWorkbenchPath(""));
+    log.debug(workbenchDir.toString());
 
     Process createProcess = builder.start();
 

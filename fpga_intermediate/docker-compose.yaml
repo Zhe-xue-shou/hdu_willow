@@ -20,6 +20,8 @@ services:
       timeout: 90s
       retries: 5
       start_period: 30s
+    networks:
+      - fpga-net
 
   nacos:
     image: nacos/nacos-server:2.0.2
@@ -41,6 +43,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    networks:
+      - fpga-net
 
   seata:
     image: seataio/seata-server:2.0.0
@@ -53,6 +57,8 @@ services:
       - ~/Desktop/workbench/hdu_willow/fpga_intermediate/source/seata-config:/root/seata-config
     depends_on:
       - nacos
+    networks:
+      - fpga-net
 
   redis:
     image: redis:6.2.7
@@ -71,18 +77,26 @@ services:
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     environment:
       SPRING_DATASOURCE_PLATFORM: mysql
+    networks:
+      - fpga-net
 
   zookeeper:
     image: zookeeper:3.9.3
     container_name: zookeeper
     ports:
       - "2181:2181"
+    networks:
+      - fpga-net
+
   namesrv:
     image: apache/rocketmq:5.3.1
     container_name: rmqnamesrv
     ports:
       - "9876:9876"
     command: ["sh", "mqnamesrv"]
+    networks:
+      - fpga-net
+
   broker:
     image: apache/rocketmq:5.3.1
     container_name: rmqbroker
@@ -99,3 +113,32 @@ services:
       - type: bind
         source: ~/Desktop/workbench/hdu_willow/fpga_intermediate/source/broker.conf
         target: /opt/rocketmq-5.3.1/conf/broker.conf
+    networks:
+      - fpga-net
+
+#  hdu-vboard:
+#    image: hdu-vboard:test          # 使用你刚构建的镜像
+#    container_name: hdu-vboard
+##    build:
+##      context: ./                   # 如果你希望 compose 自动 build
+##      dockerfile: Dockerfile
+#    working_dir: /workspace
+#    ports:
+#      - "9999:9999"                 # 暴露 Spring Boot 端口
+#    volumes:
+#      # 可选：开发阶段挂载本地 jar，覆盖镜像内的 jar
+#      - ~/Desktop/workbench/hdu_willow/hdu-vboard/target/hdu-vboard-0.0.1.jar:/workspace/target/hdu-vboard-0.0.1.jar
+#      # 如果需要挂载日志或其他文件也可以加
+#      - ~/Desktop/workbench/hdu_willow/hdu-vboard/logs:/workspace/logs
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod   # 默认 profile，可被 jar 参数覆盖
+#    command: ["java", "-jar", "/workspace/target/hdu-vboard-0.0.1.jar", "--spring.profiles.active=prod"]
+#    depends_on:
+#      - mysql
+#      - redis
+#      - nacos
+
+
+networks:
+  fpga-net:
+    external: true
