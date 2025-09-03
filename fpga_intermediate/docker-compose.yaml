@@ -45,6 +45,12 @@ services:
         condition: service_healthy
     networks:
       - fpga-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8848/nacos" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   seata:
     image: seataio/seata-server:2.0.0
@@ -125,18 +131,22 @@ services:
     working_dir: /workspace
     ports:
       - "9999:9999"                 # 暴露 Spring Boot 端口
-#    volumes:
+    volumes:
       # 可选：开发阶段挂载本地 jar，覆盖镜像内的 jar
-#      - ~/Desktop/workbench/hdu_willow/hdu-vboard/target/hdu-vboard-0.0.1.jar:/workspace/target/hdu-vboard-0.0.1.jar
+      - ~/Desktop/workbench/hdu_willow/hdu-vboard/target/hdu-vboard-0.0.1.jar:/workspace/target/hdu-vboard-0.0.1.jar
       # 如果需要挂载日志或其他文件也可以加
-#      - ~/Desktop/workbench/hdu_willow/hdu-vboard/logs:/workspace/logs
+      - ~/Desktop/workbench/hdu_willow/hdu-vboard/logs:/workspace/logs
     environment:
       SPRING_PROFILES_ACTIVE: prod   # 默认 profile，可被 jar 参数覆盖
-    command: ["java", "-jar", "/workspace/target/hdu-vboard-0.0.1.jar", "--spring.profiles.active=prod"]
+      TZ: "Asia/Shanghai"
+    command: sh -c "java -jar /workspace/target/hdu-vboard-0.0.1.jar --spring.profiles.active=$SPRING_PROFILES_ACTIVE"
     depends_on:
-      - mysql
-      - redis
-      - nacos
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      nacos:
+        condition: service_healthy
     networks:
       - fpga-net
 

@@ -106,7 +106,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       FileUtil.del(VbSysFileUtil.getFullWorkbenchPath(workspaceName));
       throw new CreateWorkbenchException(errMsg.toString());
     }
-    log.info("create simulation workspace success for token:{}", workspaceName);
+    log.info("create simulation workbench success for token:{}", workspaceName);
     redisUtil.set(VbRedisConstant.REDIS_VB_TTL_PREFIX + workspaceName, true, VbRedisConstant.REDIS_VB_TTL_LIMIT, TimeUnit.SECONDS);
 
     return true;
@@ -200,7 +200,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     clearWorkbench(workspaceName);
     SimulationWorkerBO simulationWorkerBO = simulationWorkers.remove(workspaceName);
     if (simulationWorkerBO == null) {
-      throw new MakeWorkbenchException("simulation workbench does not exist");
+      throw new MakeWorkbenchException("simulation process:" + workspaceName + " does not exist");
     }
     simulationWorkerBO.running = false;
     simulationWorkerBO.simInput.write((char) -1);
@@ -217,7 +217,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     String workbenchFullPath = VbSysFileUtil.getFullWorkbenchPath(workspaceName);
     // 不存在可能是被提前清理，不算error
     if (!FileUtil.exist(workbenchFullPath)) {
-      log.warn("workbench:{} does not exist", workspaceName);
+      log.warn("workbench:{} does not exist,maybe has been cleared already.", workspaceName);
       return false;
     }
     VbSysFileUtil.deleteDirectory(new File(workbenchFullPath));

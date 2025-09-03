@@ -50,7 +50,7 @@ public class VbRedisKeyExpiredListener extends KeyExpirationEventMessageListener
   private void freeVirtualBoard(String token) {
     try {
       virtualBoardService.stopWorkbench(token);
-      log.info("超时自动释放板卡成功,对应token:{}", token);
+      log.info("Time out to free workbench for token:{} successfully", token);
     } catch (Exception e) {
       log.warn(e.toString());
     }
