@@ -79,7 +79,7 @@ services:
       - type: bind
         source: ~/Desktop/workbench/hdu_willow/fpga_intermediate/source/redis.log
         target: /var/log/redis.log
-      - /workspace/fpga/backend/redis-data:/data
+      - ~/Desktop/workbench/db/redis-data:/data
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     environment:
       SPRING_DATASOURCE_PLATFORM: mysql

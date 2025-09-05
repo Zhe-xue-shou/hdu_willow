@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seata
+  namespace: fpga
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seata
+  template:
+    metadata:
+      labels:
+        app: seata
+    spec:
+      containers:
+        - name: seata
+          image: seataio/seata-server:2.0.0
+          ports:
+            - containerPort: 8091
+          env:
+            - name: SEATA_CONFIG_NAME
+              value: "file:/root/seata-config/registry"
+          volumeMounts:
+            - name: seata-config
+              mountPath: /root/seata-config
+      volumes:
+        - name: seata-config
+          configMap:
+            name: seata-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seata
+  namespace: fpga
+spec:
+  ports:
+    - port: 8091
+      targetPort: 8091
+  selector:
+    app: seata
