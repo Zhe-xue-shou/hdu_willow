@@ -6,6 +6,7 @@ target/
 hdu-vboard/vb/
 hdu-vboard/src/test/
 hdu-vboard/logs/
+test/
 .attach_pid*
 
 
@@ -46,3 +47,6 @@ build/
 
 ### Whatsit ###
 notes.txt
+
+### LocalFile ###
+local_image.sh

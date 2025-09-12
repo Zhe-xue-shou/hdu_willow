@@ -5,13 +5,14 @@ metadata:
   labels:
     app: redis-data
 spec:
+  storageClassName: ""
   capacity:
     storage: 10Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: ~/workbench/db/redis-data
+    path: /workspace/db/redis-data
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -20,10 +21,11 @@ metadata:
   labels:
     app: redis-log
 spec:
+  storageClassName: ""
   capacity:
     storage: 1Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: ~/workbench/logs/redis.log
+    path: /workspace/logs/redis

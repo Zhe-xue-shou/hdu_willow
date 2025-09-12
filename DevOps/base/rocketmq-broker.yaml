@@ -22,7 +22,8 @@ spec:
             - containerPort: 10911
             - containerPort: 10912
           env:
-            - name: NAMESRV_ADDR=rmq-namesrv:9876
+            - name: NAMESRV_ADDR
+              value: rmq-namesrv:9876
           volumeMounts:
             - name: broker-config
               mountPath: /opt/rocketmq-5.3.1/conf/broker.conf
@@ -39,11 +40,14 @@ metadata:
   namespace: fpga
 spec:
   ports:
-    - port: 10909
+    - name: borker-port-1
+      port: 10909
       targetPort: 10909
-    - port: 10911
+    - name: borker-port-2
+      port: 10911
       targetPort: 10911
-    - port: 10912
+    - name: borker-port-3
+      port: 10912
       targetPort: 10912
   selector:
     app: rmq-broker

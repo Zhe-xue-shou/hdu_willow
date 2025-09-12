@@ -50,18 +50,18 @@ spec:
     - name: http
       port: 8848
       targetPort: 8848
-      nodePort: 38848
+      nodePort: 30848
     - name: rpc1
       port: 9848
       targetPort: 9848
-      nodePort: 39848
+      nodePort: 30849
     - name: rpc2
       port: 9849
       targetPort: 9849
-      nodePort: 39849
+      nodePort: 30850
     - name: cluster
       port: 7848
       targetPort: 7848
-      nodePort: 37848
+      nodePort: 30851
   selector:
     app: nacos

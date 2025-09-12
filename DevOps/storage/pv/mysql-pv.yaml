@@ -2,11 +2,14 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: mysql-pv
+  labels:
+    app: mysql-data   # 👈 增加唯一标签
 spec:
+  storageClassName: ""   # 保持空，表示静态绑定
   capacity:
     storage: 5Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: ~/workbench/db/mysql/data
+    path: /workspace/db/mysql/data
   persistentVolumeReclaimPolicy: Retain

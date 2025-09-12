@@ -6,21 +6,34 @@ metadata:
 data:
   registry.conf: |
     registry {
-        type = "nacos"
-        nacos {
+      type = "nacos"
+      nacos {
         application = "seata-server"
         serverAddr = "nacos-composed:8848"
         namespace = ""
         cluster = "default"
       }
     }
-      
+    
     config {
-        type = "nacos"
-        nacos {
+      type = "nacos"
+      nacos {
         serverAddr = "nacos-composed:8848"
         namespace = ""
         group = "SEATA_GROUP"
         dataId = "seataServer.properties"
+      }
+    }
+
+    # Seata 2.x 版本的正确配置格式
+    seata {
+      server {
+        service-port = 8091
+      }
+      store {
+        mode = "file"
+        file {
+          dir = "/root/seata/data"
+        }
       }
     }

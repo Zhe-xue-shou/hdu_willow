@@ -18,8 +18,9 @@ spec:
           image: hdu-vboard:test
           ports:
             - containerPort: 9999
-          command:
-            - sh -c "java -jar /workspace/target/hdu-vboard-0.0.1.jar --spring.profiles.active=$SPRING_PROFILES_ACTIVE"
+          command: [ "/bin/sh", "-c" ]
+          args:
+            - "java -jar /workspace/target/hdu-vboard-0.0.1.jar --spring.profiles.active=$SPRING_PROFILES_ACTIVE"
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
@@ -30,12 +31,14 @@ spec:
               mountPath: /workspace/logs
             - name: vboard-jar
               mountPath: /workspace/target/hdu-vboard-0.0.1.jar
-              subPath: hdu-vboard-0.0.1.jar
       volumes:
         - name: vboard-jar
           hostPath:
-            path: /home/hdu/Desktop/workbench/hdu_willow/hdu-vboard/target/hdu-vboard-0.0.1.jar
+            path: /workspace/target/hdu-vboard-0.0.1.jar
             type: File
+        - name: vboard-log
+          persistentVolumeClaim:
+            claimName: vboard-pvc
 ---
 apiVersion: v1
 kind: Service

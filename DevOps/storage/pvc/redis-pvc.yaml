@@ -4,6 +4,7 @@ metadata:
   name: redis-data-pvc
   namespace: fpga
 spec:
+  storageClassName: ""
   accessModes:
     - ReadWriteOnce
   selector:
@@ -19,6 +20,7 @@ metadata:
   name: redis-log-pvc
   namespace: fpga
 spec:
+  storageClassName: ""
   accessModes:
     - ReadWriteOnce
   selector:

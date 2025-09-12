@@ -24,8 +24,7 @@ spec:
               mountPath: /usr/local/etc/redis/redis.conf
               subPath: redis.conf   # 从 configmap 提取单文件
             - name: redis-log
-              mountPath: /var/log/redis.log
-              subPath: redis.log
+              mountPath: /var/log
             - name: redis-data
               mountPath: /data
       volumes:
