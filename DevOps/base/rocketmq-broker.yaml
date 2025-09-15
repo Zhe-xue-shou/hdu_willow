@@ -13,6 +13,8 @@ spec:
       labels:
         app: rmq-broker
     spec:
+      nodeSelector:
+        role: dis
       containers:
         - name: rmq-broker
           image: apache/rocketmq:5.3.1

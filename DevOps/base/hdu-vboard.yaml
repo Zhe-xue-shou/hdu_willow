@@ -13,6 +13,8 @@ spec:
       labels:
         app: hdu-vboard
     spec:
+      nodeSelector:
+        role: gateway
       containers:
         - name: hdu-vboard
           image: hdu-vboard:test

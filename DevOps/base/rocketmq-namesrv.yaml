@@ -13,6 +13,8 @@ spec:
       labels:
         app: rmq-namesrv
     spec:
+      nodeSelector:
+        role: dis
       containers:
         - name: rmq-namesrv
           image: apache/rocketmq:5.3.1

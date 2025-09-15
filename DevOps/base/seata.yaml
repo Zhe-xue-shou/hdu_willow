@@ -13,6 +13,8 @@ spec:
       labels:
         app: seata
     spec:
+      nodeSelector:
+        role: dis
       # 关键配置：禁用 Kubernetes 服务环境变量注入
       enableServiceLinks: false
       containers:

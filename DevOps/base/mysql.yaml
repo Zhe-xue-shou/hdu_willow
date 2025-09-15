@@ -13,6 +13,8 @@ spec:
       labels:
         app: mysql
     spec:
+      nodeSelector:
+        role: db
 #      nodeSelector:
 #        kubernetes.io/hostname: fpga-db
       containers:
