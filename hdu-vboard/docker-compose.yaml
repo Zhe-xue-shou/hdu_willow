@@ -13,6 +13,8 @@ services:
       - ~/Desktop/workbench/hdu_willow/hdu-vboard/target/hdu-vboard-0.0.1.jar:/workspace/target/hdu-vboard-0.0.1.jar
       # 如果需要挂载日志或其他文件也可以加
       - ~/Desktop/workbench/hdu_willow/hdu-vboard/logs:/workspace/logs
+      # 挂载vb文件夹
+      - ~/Desktop/workbench/hdu_willow/hdu-vboard/vb:/workspace/vb
     environment:
       SPRING_PROFILES_ACTIVE: prod   # 默认 profile，可被 jar 参数覆盖
     command: [ "java", "-jar", "/workspace/target/hdu-vboard-0.0.1.jar", "--spring.profiles.active=prod" ]

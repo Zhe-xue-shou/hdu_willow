@@ -15,7 +15,7 @@ services:
       - ~/Desktop/workbench/db/mysql/init:/docker-entrypoint-initdb.d
       - ~/Desktop/workbench/db/mysql/data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pMySQL142536"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pMySQL142536" ]
       interval: 30s
       timeout: 90s
       retries: 5
@@ -80,7 +80,7 @@ services:
         source: ~/Desktop/workbench/hdu_willow/fpga_intermediate/source/redis.log
         target: /var/log/redis.log
       - ~/Desktop/workbench/db/redis-data:/data
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     environment:
       SPRING_DATASOURCE_PLATFORM: mysql
     networks:
@@ -99,7 +99,7 @@ services:
     container_name: rmqnamesrv
     ports:
       - "9876:9876"
-    command: ["sh", "mqnamesrv"]
+    command: [ "sh", "mqnamesrv" ]
     networks:
       - fpga-net
 
@@ -114,7 +114,7 @@ services:
       - NAMESRV_ADDR=localhost:9876
     depends_on:
       - namesrv
-    command: ["sh", "mqbroker", "-c", "/opt/rocketmq-5.3.1/conf/broker.conf"]
+    command: [ "sh", "mqbroker", "-c", "/opt/rocketmq-5.3.1/conf/broker.conf" ]
     volumes:
       - type: bind
         source: ~/Desktop/workbench/hdu_willow/fpga_intermediate/source/broker.conf
@@ -125,9 +125,9 @@ services:
   hdu-vboard:
     image: hdu-vboard:test          # 使用你刚构建的镜像
     container_name: hdu-vboard
-#    build:
-#      context: ./                   # 如果你希望 compose 自动 build
-#      dockerfile: Dockerfile
+    #    build:
+    #      context: ./                   # 如果你希望 compose 自动 build
+    #      dockerfile: Dockerfile
     working_dir: /workspace
     ports:
       - "9999:9999"                 # 暴露 Spring Boot 端口
@@ -136,6 +136,8 @@ services:
       - ~/Desktop/workbench/hdu_willow/hdu-vboard/target/hdu-vboard-0.0.1.jar:/workspace/target/hdu-vboard-0.0.1.jar
       # 如果需要挂载日志或其他文件也可以加
       - ~/Desktop/workbench/hdu_willow/hdu-vboard/logs:/workspace/logs
+      # 挂载vb文件夹
+      - ~/Desktop/workbench/hdu_willow/hdu-vboard/vb:/workspace/vb
     environment:
       SPRING_PROFILES_ACTIVE: prod   # 默认 profile，可被 jar 参数覆盖
       TZ: "Asia/Shanghai"

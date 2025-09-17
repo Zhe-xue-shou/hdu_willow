@@ -22,7 +22,7 @@
     <module>hdu-auth</module>
     <module>hdu-data-transform</module>
     <module>hdu-vboard</module>
-	  <module>hdu-svc-cmn</module>
+    <module>hdu-svc-cmn</module>
   </modules>
   <profiles>
 		<profile>
