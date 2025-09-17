@@ -74,6 +74,7 @@ public class VirtualBoardController /*extends BaseController<VirtualBoardService
     try {
       log.info("Hello token: {}", workspaceName);
       List<String> verilogFullPaths = new ArrayList<>();
+      vbSysFileService.clearWorkbenchFile(request);
       for (MultipartFile verilogFile : verilogFiles) {
         String path = vbSysFileService.saveVerilogFile(request, verilogFile);
         verilogFullPaths.add(path);
