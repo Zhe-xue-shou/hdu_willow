@@ -160,11 +160,31 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     BufferedWriter simInput = new BufferedWriter(new OutputStreamWriter(simProcess.getOutputStream()));
     BufferedReader simOutput = new BufferedReader(new InputStreamReader(simProcess.getInputStream()));
 
+    // 获取已存在的 worker
+    SimulationWorkerBO oldWorker = simulationWorkers.get(workspaceName);
+    if (oldWorker != null) {
+      log.info("Find old simulation worker for token:{}", workspaceName);
+      try {
+        stopWorkbench(workspaceName);
+        log.info("Stop old simulation worker for token:{}", workspaceName);
+      } catch (Exception e) {
+        log.error("Error to stop simulation worker for token:{}", workspaceName);
+      } finally {
+        // 无论成功失败，都移除旧 worker 避免残留
+        simulationWorkers.remove(workspaceName);
+      }
+    }
+
     SimulationWorkerBO simulationWorkerBO =
         new SimulationWorkerBO(workspaceName, simProcess, simInput, simOutput, true);
     log.info("Simulation process started for token: {}", workspaceName);
     simulationWorkers.put(workspaceName, simulationWorkerBO);
-    redisUtil.set(VbRedisConstant.REDIS_VB_TTL_PREFIX + workspaceName, true, VbRedisConstant.REDIS_VB_TTL_LIMIT, TimeUnit.SECONDS);
+    redisUtil.set(
+        VbRedisConstant.REDIS_VB_TTL_PREFIX + workspaceName,
+        true,
+        VbRedisConstant.REDIS_VB_TTL_LIMIT,
+        TimeUnit.SECONDS
+    );
     return simulationWorkerBO;
   }
 
