@@ -1,231 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulation Interface</title>
+    <title>WebSocket 调试页面</title>
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }
-
-        h1, h2 {
+            font-family: "Microsoft YaHei", sans-serif;
+            margin: 40px auto;
+            max-width: 600px;
+            background-color: #f8f9fa;
             color: #333;
         }
 
-        form, .actions, .output-container {
-            width: 80%;
-            max-width: 600px;
-            margin: 20px 0;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        h2 {
+            text-align: center;
         }
 
-        form label, input, button {
-            display: block;
+        #sessionId {
             width: 100%;
-            margin-bottom: 10px;
-        }
-
-        input[type="file"], input[type="text"] {
             padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        button {
-            background-color: #007BFF;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        #status {
-            font-size: 14px;
             margin-bottom: 10px;
-            color: #555;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: #f0f0f0;
         }
 
-        pre {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        #log {
+            width: 100%;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: #fff;
+            padding: 10px;
             white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow: auto;
-            max-height: 400px;
+            font-family: monospace;
         }
 
-        .hidden {
-            display: none;
+        #connectBtn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        #connectBtn:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-<h1>Simulation Interface</h1>
-<form id="uploadForm">
-    <h2>Upload Files for Simulation</h2>
-    <label for="verilogFile">Upload Verilog File:</label>
-    <input type="file" id="verilogFile" name="verilogFile" required>
 
-    <label for="bindFile">Upload Bind File (JSON):</label>
-    <input type="file" id="bindFile" name="bindFile" required>
+<h2>🧩 WebSocket 调试页面</h2>
 
-    <button type="submit">Start Simulation</button>
-</form>
+<button id="connectBtn">连接 WebSocket</button>
 
-<div class="actions">
-    <h2>Simulation Controls</h2>
-    <button id="stopSimulation" class="hidden">Stop Simulation</button>
-    <label for="signalInput">Send Signal (Manual Input):</label>
-    <input type="text" id="signalInput" placeholder="Enter signal JSON">
-
-    <label for="signalFile">Send Signal (File Input):</label>
-    <input type="file" id="signalFile">
-
-    <button id="sendSignal" class="hidden">Send Signal</button>
+<div>
+    <label for="sessionId">当前 Session ID：</label>
+    <input id="sessionId" type="text" readonly placeholder="尚未连接">
 </div>
 
-<div class="output-container">
-    <h2>Simulation Output</h2>
-    <div id="status">Connecting to WebSocket...</div>
-    <pre id="output"></pre>
+<div>
+    <label>后端推送数据：</label>
+    <div id="log"></div>
 </div>
 
 <script>
-    const uploadForm = document.getElementById('uploadForm');
-    const stopButton = document.getElementById('stopSimulation');
-    const sendSignalButton = document.getElementById('sendSignal');
-    const signalInput = document.getElementById('signalInput');
-    const signalFileInput = document.getElementById('signalFile');
-    const statusDiv = document.getElementById('status');
-    const outputDiv = document.getElementById('output');
+    let ws = null;
 
-    let isSimulationRunning = false;
-    const token = localStorage.getItem("token") || "mock-token";
+    const connectBtn = document.getElementById('connectBtn');
+    const sessionIdInput = document.getElementById('sessionId');
+    const logDiv = document.getElementById('log');
 
-    const setStatus = (msg, isError = false) => {
-        statusDiv.textContent = msg;
-        statusDiv.className = isError ? 'error' : '';
+    function appendLog(msg, isServer = true) {
+        const time = new Date().toLocaleTimeString();
+        const prefix = isServer ? '[服务器]' : '[本地]';
+        logDiv.textContent += `${time} ${prefix} ${msg}\n`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    connectBtn.onclick = () => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            appendLog('WebSocket 已连接，无需重复连接。', false);
+            return;
+        }
+
+        const wsUrl = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws/simulation`;
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            appendLog('✅ WebSocket 已连接！', false);
+        };
+
+        ws.onmessage = (event) => {
+            appendLog(event.data, true);
+
+            try {
+                const obj = JSON.parse(event.data);
+                if (obj.sessionId) {
+                    sessionIdInput.value = obj.sessionId;
+                }
+            } catch (e) {
+                // 非 JSON 内容直接展示
+            }
+        };
+
+        ws.onclose = () => {
+            appendLog('❌ WebSocket 已关闭', false);
+        };
+
+        ws.onerror = (err) => {
+            appendLog('⚠️ WebSocket 出错: ' + err.message, false);
+        };
     };
-
-    // 上传并构建工作台
-    uploadForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        const verilogFile = document.getElementById('verilogFile').files[0];
-        const bindFile = document.getElementById('bindFile').files[0];
-
-        if (!verilogFile || !bindFile) {
-            setStatus("请选择 Verilog 文件和绑定文件。", true);
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('verilogFile', verilogFile);
-        formData.append('bindFile', bindFile);
-
-        try {
-            setStatus("构建虚拟板卡中...");
-            const buildResp = await fetch('/vb/build', {
-                method: 'POST',
-                headers: { 'token': token },
-                body: formData
-            });
-            const buildResult = await buildResp.json();
-            if (buildResult.code !== 0) throw new Error(buildResult.msg || "构建失败");
-
-            setStatus("构建成功，开始仿真中...");
-            const startResp = await fetch('/vb/start', {
-                method: 'POST',
-                headers: { 'token': token }
-            });
-            const startResult = await startResp.json();
-            if (startResult.code !== 0) throw new Error(startResult.msg || "启动失败");
-
-            setStatus("仿真已启动。");
-            outputDiv.textContent = JSON.stringify(startResult.result, null, 2);
-            isSimulationRunning = true;
-            stopButton.style.display = "inline-block";
-            sendSignalButton.style.display = "inline-block";
-        } catch (err) {
-            setStatus("仿真启动失败：" + err.message, true);
-        }
-    });
-
-    // 发送信号
-    sendSignalButton.addEventListener('click', async () => {
-        let signalData;
-        if (signalFileInput.files.length > 0) {
-            const file = signalFileInput.files[0];
-            signalData = await file.text();
-        } else {
-            signalData = signalInput.value;
-        }
-
-        if (!signalData.trim()) {
-            setStatus("请输入或选择信号文件。", true);
-            return;
-        }
-
-        const payload = { data: signalData };
-
-        try {
-            const resp = await fetch('/vb/signal', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'token': token
-                },
-                body: JSON.stringify(payload)
-            });
-            const result = await resp.json();
-            if (result.code !== 0) throw new Error(result.msg || '发送失败');
-
-            setStatus("信号发送成功。");
-            outputDiv.textContent = JSON.stringify(result.result, null, 2);
-        } catch (err) {
-            setStatus("信号发送失败：" + err.message, true);
-        }
-    });
-
-    // 停止仿真
-    stopButton.addEventListener('click', async () => {
-        try {
-            const resp = await fetch('/vb/finish', {
-                method: 'POST',
-                headers: { 'token': token }
-            });
-            const result = await resp.json();
-            if (result.code !== 0) throw new Error(result.msg || "停止失败");
-
-            isSimulationRunning = false;
-            setStatus("仿真已停止。");
-            outputDiv.textContent = JSON.stringify(result.result, null, 2);
-            stopButton.style.display = "none";
-            sendSignalButton.style.display = "none";
-        } catch (err) {
-            setStatus("停止仿真出错：" + err.message, true);
-        }
-    });
 </script>
-
-
 </body>
 </html>

@@ -1,8 +1,10 @@
 package com.hdu.vboard.websocket;
 
 import cn.hutool.json.JSONObject;
+import com.hdu.vboard.event.WorkerStateChangedEvent;
 import com.hdu.vboard.service.VirtualBoardService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -28,7 +30,12 @@ public class WebSocketPushService {
     sessions.remove(id);
   }
 
-  public void broadcast(String message) {
+  @EventListener
+  public void broadcast(WorkerStateChangedEvent event) {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("token", event.getToken());
+    jsonObject.put("state", event.getState());
+    String message = jsonObject.toString();
     Collection<WebSocketSession> col = sessions.values();
     log.debug(message);
     for (WebSocketSession s : col) {

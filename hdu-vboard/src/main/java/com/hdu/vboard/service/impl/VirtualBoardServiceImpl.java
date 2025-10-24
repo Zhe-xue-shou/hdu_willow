@@ -5,15 +5,16 @@ import cn.hutool.json.JSONObject;
 import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.vboard.entity.bo.SimulationWorkerBO;
 import com.hdu.vboard.entity.constant.VbRedisConstant;
+import com.hdu.vboard.event.WorkerStateChangedEvent;
 import com.hdu.vboard.exception.CreateWorkbenchException;
 import com.hdu.vboard.exception.MakeWorkbenchException;
 import com.hdu.vboard.service.VirtualBoardService;
 import com.hdu.vboard.util.VbSysFileUtil;
 import com.hdu.vboard.util.VirtualBoardUtil;
 import com.hdu.svccmn.service.UserStatisticService;
-import com.hdu.vboard.websocket.WebSocketPushService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -35,7 +36,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
   UserStatisticService userStatisticService;
 
   @Resource
-  WebSocketPushService webSocketPushService;
+  ApplicationEventPublisher applicationEventPublisher;
 
   @Value("${script.pyPath}")
   private String pyPath;
@@ -220,12 +221,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       JSONObject state = jsonObj.getJSONObject("data");
       SimulationWorkerBO targetWorker;
       if ((targetWorker = simulationWorkers.get(workspaceName)) != null) {
-        targetWorker.setState(state);
-        JSONObject broadcastJsonObj = new JSONObject();
-        broadcastJsonObj.set("token", workspaceName);
-        broadcastJsonObj.set("state", targetWorker.getState());
-        webSocketPushService.broadcast(broadcastJsonObj.toString());
-        return broadcastJsonObj;
+        targetWorker.setState(state); // 更新map中的worker状态
+        applicationEventPublisher.publishEvent(new WorkerStateChangedEvent(this, workspaceName, state));
+        return state;
       }
     }
     return null;
