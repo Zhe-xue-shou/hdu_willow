@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import cn.hutool.json.JSONObject;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -101,10 +102,8 @@ public class VirtualBoardController /*extends BaseController<VirtualBoardService
   public Result start(HttpServletRequest request) {
     String token = request.getHeader("token");
     try {
-      virtualBoardService.runWorkbench(token);
+      JSONObject finalJson = virtualBoardService.runWorkbench(token);
       log.debug("Now it's running! token: {}", token);
-      JSONObject finalJson = virtualBoardService.getSignalFromVirtualBoard(token);
-      log.debug(finalJson.toString());
       virtualBoardService.clearWorkbench(token);
       log.debug("Clear the workbench files!");
       return Result.ok(finalJson);

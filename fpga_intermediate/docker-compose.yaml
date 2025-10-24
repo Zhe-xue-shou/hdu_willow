@@ -130,7 +130,7 @@ services:
 #    #      dockerfile: Dockerfile
 #    working_dir: /workspace
 #    ports:
-#      - "9999:9999"                 # 暴露 Spring Boot 端口
+#      - "19999:9999"                 # 暴露 Spring Boot 端口
 #    volumes:
 #      # 可选：开发阶段挂载本地 jar，覆盖镜像内的 jar
 #      - ~/Desktop/workbench/hdu_willow/hdu-vboard/target/hdu-vboard-0.0.1.jar:/workspace/target/hdu-vboard-0.0.1.jar

@@ -2,8 +2,12 @@ package com.hdu.vboard.util;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.hdu.vboard.entity.bo.SimulationWorkerBO;
+import com.hdu.vboard.websocket.SimulationWebSocketHandler;
+import com.hdu.vboard.websocket.WebSocketPushService;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 

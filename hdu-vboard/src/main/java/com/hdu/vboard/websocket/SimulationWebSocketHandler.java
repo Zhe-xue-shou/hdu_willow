@@ -1,0 +1,29 @@
+package com.hdu.vboard.websocket;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.web.socket.*;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import javax.annotation.Resource;
+
+@Component
+@Slf4j
+public class SimulationWebSocketHandler extends TextWebSocketHandler {
+
+  @Resource
+  private WebSocketPushService pushService;
+
+  @Override
+  public void afterConnectionEstablished(WebSocketSession session) {
+    pushService.addSession(session.getId(), session);
+    log.info("[WebSocket] 连接建立: {}", session.getId());
+    pushService.firstConnectSendStates(session);
+  }
+
+  @Override
+  public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    pushService.removeSession(session.getId());
+    log.info("[WebSocket] 连接关闭: {}", session.getId());
+  }
+}

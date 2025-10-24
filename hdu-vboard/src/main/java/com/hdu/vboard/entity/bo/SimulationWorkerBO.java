@@ -1,5 +1,6 @@
 package com.hdu.vboard.entity.bo;
 
+import cn.hutool.json.JSONObject;
 import com.hdu.vboard.exception.SimulationException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +16,7 @@ public class SimulationWorkerBO {
   public Process simulationProcess;
   public BufferedWriter simInput;
   public BufferedReader simOutput;
+  public JSONObject state;
   public volatile boolean running;
 
   public String getOutput() throws IOException {

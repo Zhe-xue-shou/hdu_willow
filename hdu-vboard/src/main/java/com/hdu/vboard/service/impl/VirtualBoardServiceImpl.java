@@ -11,6 +11,7 @@ import com.hdu.vboard.service.VirtualBoardService;
 import com.hdu.vboard.util.VbSysFileUtil;
 import com.hdu.vboard.util.VirtualBoardUtil;
 import com.hdu.svccmn.service.UserStatisticService;
+import com.hdu.vboard.websocket.WebSocketPushService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
   @Resource
   UserStatisticService userStatisticService;
 
+  @Resource
+  WebSocketPushService webSocketPushService;
+
   @Value("${script.pyPath}")
   private String pyPath;
 
@@ -41,6 +45,23 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
   @Value("${verilator.path}")
   private String verilatorPath;
+
+  @Override
+  public JSONObject getWorkerStatus() {
+    JSONObject returnJsonObj = new JSONObject();
+    // 用来装所有 worker 状态的数组
+    List<JSONObject> stateList = new ArrayList<>();
+
+    simulationWorkers.forEach((token, worker) -> {
+      JSONObject item = new JSONObject();
+      item.set("token", token);
+      item.set("state", worker.getState());
+      stateList.add(item);
+    });
+
+    returnJsonObj.set("states", stateList);
+    return returnJsonObj;
+  }
 
   @Override
   public Boolean createWorkbench(String workspaceName, List<String> verilogFullPaths, String bindFullPath) throws Exception {
@@ -142,7 +163,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
   }
 
   @Override
-  public SimulationWorkerBO runWorkbench(String workspaceName) throws Exception {
+  public JSONObject runWorkbench(String workspaceName) throws Exception {
     if (!redisUtil.hasKey(VbRedisConstant.REDIS_VB_TTL_PREFIX + workspaceName)) {
       throw new Exception("Connection time out! Workspace has been cleared!");
     }
@@ -176,16 +197,38 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     }
 
     SimulationWorkerBO simulationWorkerBO =
-        new SimulationWorkerBO(workspaceName, simProcess, simInput, simOutput, true);
+        new SimulationWorkerBO(workspaceName, simProcess, simInput, simOutput, null, true);
     log.info("Simulation process started for token: {}", workspaceName);
     simulationWorkers.put(workspaceName, simulationWorkerBO);
+    final JSONObject finalJsonObj = getSignalFromVirtualBoard(workspaceName);
+    JSONObject firstState = updateState(workspaceName, finalJsonObj);
+    log.debug("first state:{}", firstState);
     redisUtil.set(
         VbRedisConstant.REDIS_VB_TTL_PREFIX + workspaceName,
         true,
         VbRedisConstant.REDIS_VB_TTL_LIMIT,
         TimeUnit.SECONDS
     );
-    return simulationWorkerBO;
+    return finalJsonObj;
+  }
+
+  // update and broadcast
+  private JSONObject updateState(String workspaceName, JSONObject jsonObj) {
+    if (jsonObj != null && jsonObj.getJSONObject("data") != null) {
+      log.debug("final json:{}", jsonObj);
+      log.debug("final json[data]:{}", jsonObj.getJSONObject("data"));
+      JSONObject state = jsonObj.getJSONObject("data");
+      SimulationWorkerBO targetWorker;
+      if ((targetWorker = simulationWorkers.get(workspaceName)) != null) {
+        targetWorker.setState(state);
+        JSONObject broadcastJsonObj = new JSONObject();
+        broadcastJsonObj.set("token", workspaceName);
+        broadcastJsonObj.set("state", targetWorker.getState());
+        webSocketPushService.broadcast(broadcastJsonObj.toString());
+        return broadcastJsonObj;
+      }
+    }
+    return null;
   }
 
   @Override
@@ -210,7 +253,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       throw new MakeWorkbenchException("simulation workbench does not exist");
     }
     redisUtil.set(VbRedisConstant.REDIS_VB_TTL_PREFIX + workspaceName, true, VbRedisConstant.REDIS_VB_TTL_LIMIT, TimeUnit.SECONDS);
-    return VirtualBoardUtil.getSignalFromVirtualBoard(simulationWorkerBO.simOutput);
+    final JSONObject finalJsonObj = VirtualBoardUtil.getSignalFromVirtualBoard(simulationWorkerBO.simOutput);
+    updateState(workspaceName, finalJsonObj);
+    return finalJsonObj;
   }
 
   // 先清理文件，再停止线程，防止资源泄露
@@ -233,7 +278,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
   // 单纯清理工作区文件
   @Override
-  public Boolean clearWorkbench(String workspaceName) throws Exception {
+  public Boolean clearWorkbench(String workspaceName) {
     String workbenchFullPath = VbSysFileUtil.getFullWorkbenchPath(workspaceName);
     // 不存在可能是被提前清理，不算error
     if (!FileUtil.exist(workbenchFullPath)) {

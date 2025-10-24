@@ -27,6 +27,20 @@ seata:
       default: 192.168.100.27:8091
 server:
   port: 9999
+  # 关键配置：信任代理头
+  forward-headers-strategy: framework
+  tomcat:
+    remoteip:
+      remote-ip-header: X-Forwarded-For
+      protocol-header: X-Forwarded-Proto
+      host-header: X-Forwarded-Host
+      # 信任所有代理（根据实际情况调整）
+      internal-proxies: .*
+  # 如果使用 Undertow
+  undertow:
+    options:
+      # 允许编码斜杠
+      ALLOW_ENCODED_SLASH: true
 netty:
   port: 60020
   boss:
@@ -57,8 +71,7 @@ dubbo:
 #  level:
 #    com.hdu.vboard: debug
 cors:
-  allowed-origins:
-    "http://localhost:5173"
+  allowed-origins: https://vfpga.hdu.edu.cn , http://vfpga.hdu.edu.cn
 
   # constants
 script:
