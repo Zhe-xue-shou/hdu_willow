@@ -26,9 +26,10 @@ COPY target/hdu-vboard-0.0.1.jar /workspace/target/hdu-vboard-0.0.1.jar
 COPY src/main/cpp /workspace/src/main/cpp
 COPY src/main/python /workspace/src/main/python
 
-# 暴露 Spring Boot 默认端口
-EXPOSE 9999
+# 设置默认的 Spring Profile 为 prod
+#ENV SPRING_PROFILES_ACTIVE=prod
 
 # 容器启动时执行
 ENTRYPOINT ["java", "-jar", "/workspace/target/hdu-vboard-0.0.1.jar"]
-CMD ["--spring.profiles.active=prod"]
+# 默认命令行参数：如果没有其他参数，使用 prod
+CMD ["--spring.profiles.active=${SPRING_PROFILES_ACTIVE}"]

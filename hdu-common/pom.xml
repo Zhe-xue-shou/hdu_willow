@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>hdu-common</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -61,15 +62,33 @@
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-spring-boot-starter</artifactId>
         </dependency>
-	    <dependency>
-		    <groupId>org.aspectj</groupId>
-		    <artifactId>aspectjweaver</artifactId>
-	    </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
     </dependencies>
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
+    <build>
+        <plugins>
+            <!-- 禁用 Spring Boot 插件的重新打包 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip> <!-- 关键：跳过重新打包 -->
+                    <classifier>exec</classifier>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <phase>none</phase> <!-- 完全禁用这个执行阶段 -->
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

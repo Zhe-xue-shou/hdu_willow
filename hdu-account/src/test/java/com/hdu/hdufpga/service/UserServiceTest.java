@@ -2,7 +2,6 @@ package com.hdu.hdufpga.service;
 
 
 import com.hdu.hdufpga.entity.po.UserPO;
-import lombok.var;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -76,11 +75,11 @@ public class UserServiceTest {
 
     @Test
     void dummyTest(){
-        var dummyUser = userService.getUserByUserName("dummy",1);
+        UserPO dummyUser = userService.getUserByUserName("dummy",1);
         assertNotNull(dummyUser);
         dummyUser.setTotActiveTime(0L);
         assertEquals(0L, dummyUser.getTotActiveTime());
-        var t = dummyUser.getTotActiveTime();
+        Long t = dummyUser.getTotActiveTime();
         t += 100;
         dummyUser.setTotActiveTime(t);
         assertEquals(100L, dummyUser.getTotActiveTime());

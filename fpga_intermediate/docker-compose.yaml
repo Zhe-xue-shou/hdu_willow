@@ -139,9 +139,9 @@ services:
 #      # 挂载vb文件夹
 #      - ~/Desktop/workbench/hdu_willow/hdu-vboard/vb:/workspace/vb
 #    environment:
-#      SPRING_PROFILES_ACTIVE: prod   # 默认 profile，可被 jar 参数覆盖
+#      SPRING_PROFILES_ACTIVE: dev
 #      TZ: "Asia/Shanghai"
-#    command: sh -c "java -jar /workspace/target/hdu-vboard-0.0.1.jar --spring.profiles.active=$SPRING_PROFILES_ACTIVE"
+#    command: "java -jar /workspace/target/hdu-vboard-0.0.1.jar --spring.profiles.active=dev"
 #    depends_on:
 #      mysql:
 #        condition: service_healthy
