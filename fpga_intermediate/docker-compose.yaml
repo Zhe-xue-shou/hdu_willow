@@ -86,13 +86,13 @@ services:
     networks:
       - fpga-net
 
-  zookeeper:
-    image: zookeeper:3.9.3
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-    networks:
-      - fpga-net
+#  zookeeper:
+#    image: zookeeper:3.9.3
+#    container_name: zookeeper
+#    ports:
+#      - "2181:2181"
+#    networks:
+#      - fpga-net
 
   namesrv:
     image: apache/rocketmq:5.3.1
