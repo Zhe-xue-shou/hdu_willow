@@ -5,7 +5,8 @@ import cn.hutool.json.JSONObject;
 import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.vboard.entity.bo.SimulationWorkerBO;
 import com.hdu.vboard.entity.constant.VbRedisConstant;
-import com.hdu.vboard.event.WorkerStateChangedEvent;
+import com.hdu.vboard.event.WorkerStateEvent;
+import com.hdu.vboard.event.enums.WorkerStatesEventType;
 import com.hdu.vboard.exception.CreateWorkbenchException;
 import com.hdu.vboard.exception.MakeWorkbenchException;
 import com.hdu.vboard.service.VirtualBoardService;
@@ -155,9 +156,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       while ((line = reader.readLine()) != null) {
         errMsg.append(line).append("\n");
       }
-
       throw new MakeWorkbenchException(errMsg.toString());
     }
+    applicationEventPublisher.publishEvent(new WorkerStateEvent(this, WorkerStatesEventType.BUILD, workspaceName, null));
     redisUtil.set(VbRedisConstant.REDIS_VB_TTL_PREFIX + workspaceName, true, VbRedisConstant.REDIS_VB_TTL_LIMIT, TimeUnit.SECONDS);
 
     return true;
@@ -222,7 +223,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       SimulationWorkerBO targetWorker;
       if ((targetWorker = simulationWorkers.get(workspaceName)) != null) {
         targetWorker.setState(state); // 更新map中的worker状态
-        applicationEventPublisher.publishEvent(new WorkerStateChangedEvent(this, workspaceName, state));
+        applicationEventPublisher.publishEvent(new WorkerStateEvent(this, WorkerStatesEventType.CHANGED, workspaceName, state));
         return state;
       }
     }
@@ -271,6 +272,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       simulationWorkerBO.simulationProcess.destroy();
       log.info("simulation process:{} stopped!", workspaceName);
     }
+    applicationEventPublisher.publishEvent(new WorkerStateEvent(this, WorkerStatesEventType.FINISH, workspaceName, null));
     return true;
   }
 

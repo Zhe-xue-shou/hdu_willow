@@ -1,7 +1,7 @@
 package com.hdu.vboard.websocket;
 
 import cn.hutool.json.JSONObject;
-import com.hdu.vboard.event.WorkerStateChangedEvent;
+import com.hdu.vboard.event.WorkerStateEvent;
 import com.hdu.vboard.service.VirtualBoardService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -31,13 +31,24 @@ public class WebSocketPushService {
   }
 
   @EventListener
-  public void broadcast(WorkerStateChangedEvent event) {
+  public void broadcast(WorkerStateEvent event) {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("token", event.getToken());
-    jsonObject.put("state", event.getState());
+    jsonObject.set("token", event.getToken());
+    switch (event.getType()) {
+      case BUILD:
+        jsonObject.set("type", 1);
+        break;
+      case CHANGED:
+        jsonObject.set("type", 2);
+        jsonObject.set("state", event.getState());
+        break;
+      case FINISH:
+        jsonObject.set("type", 3);
+        break;
+    }
     String message = jsonObject.toString();
-    Collection<WebSocketSession> col = sessions.values();
     log.debug(message);
+    Collection<WebSocketSession> col = sessions.values();
     for (WebSocketSession s : col) {
       if (s.isOpen()) {
         try {
@@ -50,13 +61,13 @@ public class WebSocketPushService {
   }
 
   public void firstConnectSendStates(WebSocketSession session) {
-    JSONObject message = virtualBoardService.getWorkerStatus();
+    JSONObject message = virtualBoardService.getWorkerStatus().set("type",0);
     if (session != null && session.isOpen()) {
       try {
         session.sendMessage(new TextMessage(message.toString()));
         log.debug("firstStates:{}", message);
       } catch (IOException e) {
-        log.debug(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       }
     }
   }

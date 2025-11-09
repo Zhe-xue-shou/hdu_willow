@@ -89,7 +89,7 @@
             return;
         }
 
-        const wsUrl = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws/simulation`;
+        const wsUrl = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws/monitor`;
         ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
