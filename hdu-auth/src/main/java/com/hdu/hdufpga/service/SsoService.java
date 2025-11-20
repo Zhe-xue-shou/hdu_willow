@@ -29,14 +29,37 @@ public class SsoService {
     @DubboReference(group = "recordSso", check = false)
     private AbstractSsoService recordSsoService;
 
+    @DubboReference(group="vboardSso",check = false)
+    private AbstractSsoService vboardSsoService;
+
     // todo!()
 
     private void init() {
         if (ssoServices.isEmpty()) {
-            ssoServices.add(accountSsoService);
-            ssoServices.add(fpgaSsoService);
-            ssoServices.add(interruptSsoService);
-            ssoServices.add(recordSsoService);
+            try {
+                addServiceSafely(accountSsoService, "accountSso");
+                addServiceSafely(fpgaSsoService, "fpgaSso");
+                addServiceSafely(interruptSsoService, "interruptSso");
+                addServiceSafely(recordSsoService, "recordSso");
+                addServiceSafely(vboardSsoService, "vboardSso");
+
+                log.info("SSO服务初始化完成，共加载 {} 个服务", ssoServices.size());
+            } catch (Exception e) {
+                log.warn("SSO服务初始化过程中出现异常，已加载 {} 个服务: {}", ssoServices.size(), e.getMessage());
+            }
+        }
+    }
+
+    private void addServiceSafely(AbstractSsoService service, String serviceName) {
+        try {
+            if (service != null) {
+                // 尝试调用方法验证服务是否可用
+                String appName = service.getApplicationName();
+                ssoServices.add(service);
+                log.debug("成功加载SSO服务: {} -> {}", serviceName, appName);
+            }
+        } catch (Exception e) {
+            log.warn("加载SSO服务 {} 失败: {}", serviceName, e.getMessage());
         }
     }
 

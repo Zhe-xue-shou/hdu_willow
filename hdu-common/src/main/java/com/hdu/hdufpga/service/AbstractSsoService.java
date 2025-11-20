@@ -7,6 +7,7 @@ import cn.dev33.satoken.stp.StpUtil;
  */
 
 // todo!()
+
 public interface AbstractSsoService {
 
 

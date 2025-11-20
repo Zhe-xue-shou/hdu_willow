@@ -10,7 +10,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Import(WebConfiguration.class)
+//@Import(WebConfiguration.class)
 @SpringBootApplication(scanBasePackages = "com.hdu")
 @EnableDubbo
 public class HduAuthApplication {

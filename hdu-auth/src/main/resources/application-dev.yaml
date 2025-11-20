@@ -27,7 +27,7 @@ dubbo:
     group: dubbo
     register-mode: interface
     parameters:
-      namespace: local-namespace
+      namespace: c29600b0-2e5d-450b-bab0-e56d78292d51
   metadata-report:
     address: nacos://localhost:8848
 seata:
@@ -43,3 +43,7 @@ seata:
 cors:
   allowed-origins:
     http://localhost:5173
+
+logging:
+  level:
+    com.hdu.hdufpga.service: debug
