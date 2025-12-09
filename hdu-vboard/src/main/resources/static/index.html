@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket 调试页面</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            margin: 40px auto;
+            max-width: 600px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        #sessionId {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: #f0f0f0;
+        }
+
+        #log {
+            width: 100%;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: #fff;
+            padding: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+
+        #connectBtn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        #connectBtn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<h2>🧩 WebSocket 调试页面</h2>
+
+<button id="connectBtn">连接 WebSocket</button>
+
+<div>
+    <label for="sessionId">当前 Session ID：</label>
+    <input id="sessionId" type="text" readonly placeholder="尚未连接">
+</div>
+
+<div>
+    <label>后端推送数据：</label>
+    <div id="log"></div>
+</div>
+
+<script>
+    let ws = null;
+
+    const connectBtn = document.getElementById('connectBtn');
+    const sessionIdInput = document.getElementById('sessionId');
+    const logDiv = document.getElementById('log');
+
+    function appendLog(msg, isServer = true) {
+        const time = new Date().toLocaleTimeString();
+        const prefix = isServer ? '[服务器]' : '[本地]';
+        logDiv.textContent += `${time} ${prefix} ${msg}\n`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    connectBtn.onclick = () => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            appendLog('WebSocket 已连接，无需重复连接。', false);
+            return;
+        }
+
+        const wsUrl = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws/monitor`;
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            appendLog('✅ WebSocket 已连接！', false);
+        };
+
+        ws.onmessage = (event) => {
+            appendLog(event.data, true);
+
+            try {
+                const obj = JSON.parse(event.data);
+                if (obj.sessionId) {
+                    sessionIdInput.value = obj.sessionId;
+                }
+            } catch (e) {
+                // 非 JSON 内容直接展示
+            }
+        };
+
+        ws.onclose = () => {
+            appendLog('❌ WebSocket 已关闭', false);
+        };
+
+        ws.onerror = (err) => {
+            appendLog('⚠️ WebSocket 出错: ' + err.message, false);
+        };
+    };
+</script>
+</body>
+</html>

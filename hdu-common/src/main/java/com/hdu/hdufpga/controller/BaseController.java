@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Slf4j
 public abstract class BaseController<S extends MPJBaseService<T>, T extends BaseEntity> {
     //此处必须使用Autowired
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     protected S service;
 

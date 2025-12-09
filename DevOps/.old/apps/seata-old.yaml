@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: seata-config
+  namespace: fpga
+data:
+  registry.conf: |
+    registry {
+      type = "nacos"
+      nacos {
+        application = "seata-server"
+        serverAddr = "nacos.fpga.svc.cluster.local:8848"
+        namespace = ""
+        cluster = "default"
+      }
+    }
+
+    config {
+      type = "nacos"
+      nacos {
+        serverAddr = "nacos.fpga.svc.cluster.local:8848"
+        namespace = ""
+        group = "SEATA_GROUP"
+        dataId = "seataServer.properties"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seata
+  namespace: fpga
+spec:
+  selector:
+    matchLabels:
+      app: seata
+  template:
+    metadata:
+      labels:
+        app: seata
+    spec:
+      containers:
+        - name: seata
+          image: seataio/seata-server:2.0.0
+          ports:
+            - containerPort: 8091
+          env:
+            - name: SEATA_CONFIG_NAME
+              value: file:/root/seata-config/registry
+            - name: SEATA_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: SEATA_PORT
+              value: "8091"
+          volumeMounts:
+            - name: seata-config-volume
+              mountPath: /root/seata-config
+      volumes:
+        - name: seata-config-volume
+          configMap:
+            name: seata-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seata
+  namespace: fpga
+spec:
+  selector:
+    app: seata
+  ports:
+    - port: 8091
+      targetPort: 8091
+  type: NodePort

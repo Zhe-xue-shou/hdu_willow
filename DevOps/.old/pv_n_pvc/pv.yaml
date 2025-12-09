@@ -1,0 +1,30 @@
+# PersistentVolumes are cluster resources and not namespaced
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+  labels:
+    app: mysql-data
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/data/db/mysql/data"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-init-pv
+  labels:
+    app: mysql-init
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/data/db/mysql/init"

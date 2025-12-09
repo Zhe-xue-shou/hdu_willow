@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.hdu</groupId>
         <artifactId>hdu</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.1</version>
     </parent>
 
     <artifactId>hdu-record-api</artifactId>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.hdu</groupId>
             <artifactId>hdu-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.1</version>
         </dependency>
     </dependencies>
 

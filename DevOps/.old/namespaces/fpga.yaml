@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fpga
+  labels:
+    name: deployment
+    # to prevent accidental deletion of the namespace
+    # to FORCEFULLY delete the namespace, remove the finalizers below and reapply the manifest
+  finalizers:
+    - kubernetes

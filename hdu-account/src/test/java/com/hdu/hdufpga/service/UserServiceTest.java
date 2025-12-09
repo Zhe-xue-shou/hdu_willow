@@ -2,11 +2,15 @@ package com.hdu.hdufpga.service;
 
 
 import com.hdu.hdufpga.entity.po.UserPO;
+import lombok.var;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
 import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 public class UserServiceTest {
@@ -68,5 +72,17 @@ public class UserServiceTest {
         endCalendar.set(2050, Calendar.JANUARY, 1);
         Date endDate = endCalendar.getTime();
         System.out.println(userService.getUserCountByDate(startDate, endDate));
+    }
+
+    @Test
+    void dummyTest(){
+        var dummyUser = userService.getUserByUserName("dummy",1);
+        assertNotNull(dummyUser);
+        dummyUser.setTotActiveTime(0L);
+        assertEquals(0L, dummyUser.getTotActiveTime());
+        var t = dummyUser.getTotActiveTime();
+        t += 100;
+        dummyUser.setTotActiveTime(t);
+        assertEquals(100L, dummyUser.getTotActiveTime());
     }
 }

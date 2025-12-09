@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nacos
+  namespace: fpga
+spec:
+  selector:
+    matchLabels:
+      app: nacos
+  template:
+    metadata:
+      labels:
+        app: nacos
+    spec:
+      containers:
+        - name: nacos
+          image: nacos/nacos-server:2.0.2
+          ports:
+            - containerPort: 8848
+            - containerPort: 9848
+            - containerPort: 9849
+            - containerPort: 7848
+          env:
+            - name: MODE
+              value: standalone
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: mysql
+            - name: MYSQL_SERVICE_HOST
+              value: mysql.fpga.svc.cluster.local
+            - name: MYSQL_SERVICE_PORT
+              value: "3306"
+            - name: MYSQL_SERVICE_USER
+              value: root
+            - name: MYSQL_SERVICE_PASSWORD
+              value: MySQL142536
+            - name: MYSQL_SERVICE_DB_NAME
+              value: nacos
+            - name: MYSQL_SERVICE_DB_PARAM
+              value: useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nacos
+  namespace: fpga
+spec:
+  selector:
+    app: nacos
+  ports:
+    - name: port8848
+      port: 8848
+      targetPort: 8848
+    - name: port9848
+      port: 9848
+      targetPort: 9848
+    - name: port9849
+      port: 9849
+      targetPort: 9849
+    - name: port7848
+      port: 7848
+      targetPort: 7848
+  type: NodePort

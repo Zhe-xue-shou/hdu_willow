@@ -1,0 +1,158 @@
+name: fpga_intermediate
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    hostname: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: MySQL142536
+      MYSQL_DATABASE: nacos
+      MYSQL_USER: nacos
+      MYSQL_PASSWORD: MySQL142536
+    ports:
+      - "3306:3306"
+    volumes:
+      - ~/Desktop/workbench/db/mysql/init:/docker-entrypoint-initdb.d
+      - ~/Desktop/workbench/db/mysql/data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pMySQL142536" ]
+      interval: 30s
+      timeout: 90s
+      retries: 5
+      start_period: 30s
+    networks:
+      - fpga-net
+
+  nacos:
+    image: nacos/nacos-server:2.0.2
+    container_name: nacos
+    environment:
+      MODE: standalone
+      SPRING_DATASOURCE_PLATFORM: mysql
+      MYSQL_SERVICE_HOST: mysql
+      MYSQL_SERVICE_PORT: 3306
+      MYSQL_SERVICE_USER: root
+      MYSQL_SERVICE_PASSWORD: MySQL142536
+      MYSQL_SERVICE_DB_NAME: nacos
+      MYSQL_SERVICE_DB_PARAM: useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    ports:
+      - 8848:8848
+      - 9848:9848
+      - 9849:9849
+      - 7848:7848
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - fpga-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8848/nacos" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  seata:
+    image: seataio/seata-server:2.0.0
+    container_name: seata
+    environment:
+      SEATA_CONFIG_NAME: file:/root/seata-config/registry
+    ports:
+      - "8091:8091"
+    volumes:
+      - ~/Desktop/workbench/hdu_willow/fpga_intermediate/source/seata-config:/root/seata-config
+    depends_on:
+      - nacos
+    networks:
+      - fpga-net
+
+  redis:
+    image: redis:6.2.7
+    container_name: redis
+    user: "0"  # run as root user
+    ports:
+      - "6379:6379"
+    volumes:
+      - type: bind
+        source: ~/Desktop/workbench/hdu_willow/fpga_intermediate/source/redis.conf
+        target: /usr/local/etc/redis/redis.conf
+      - type: bind
+        source: ~/Desktop/workbench/hdu_willow/fpga_intermediate/source/redis.log
+        target: /var/log/redis.log
+      - ~/Desktop/workbench/db/redis-data:/data
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    environment:
+      SPRING_DATASOURCE_PLATFORM: mysql
+    networks:
+      - fpga-net
+
+  zookeeper:
+    image: zookeeper:3.9.3
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - fpga-net
+
+  namesrv:
+    image: apache/rocketmq:5.3.1
+    container_name: rmqnamesrv
+    ports:
+      - "9876:9876"
+    command: [ "sh", "mqnamesrv" ]
+    networks:
+      - fpga-net
+
+  broker:
+    image: apache/rocketmq:5.3.1
+    container_name: rmqbroker
+    ports:
+      - "10909:10909"
+      - "10911:10911"
+      - "10912:10912"
+    environment:
+      - NAMESRV_ADDR=localhost:9876
+    depends_on:
+      - namesrv
+    command: [ "sh", "mqbroker", "-c", "/opt/rocketmq-5.3.1/conf/broker.conf" ]
+    volumes:
+      - type: bind
+        source: ~/Desktop/workbench/hdu_willow/fpga_intermediate/source/broker.conf
+        target: /opt/rocketmq-5.3.1/conf/broker.conf
+    networks:
+      - fpga-net
+
+#  hdu-vboard:
+#    image: hdu-vboard:test          # 使用你刚构建的镜像
+#    container_name: hdu-vboard
+#    #    build:
+#    #      context: ./                   # 如果你希望 compose 自动 build
+#    #      dockerfile: Dockerfile
+#    working_dir: /workspace
+#    ports:
+#      - "19999:9999"                 # 暴露 Spring Boot 端口
+#    volumes:
+#      # 可选：开发阶段挂载本地 jar，覆盖镜像内的 jar
+#      - ~/Desktop/workbench/hdu_willow/hdu-vboard/target/hdu-vboard-0.0.1.jar:/workspace/target/hdu-vboard-0.0.1.jar
+#      # 如果需要挂载日志或其他文件也可以加
+#      - ~/Desktop/workbench/hdu_willow/hdu-vboard/logs:/workspace/logs
+#      # 挂载vb文件夹
+#      - ~/Desktop/workbench/hdu_willow/hdu-vboard/vb:/workspace/vb
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod   # 默认 profile，可被 jar 参数覆盖
+#      TZ: "Asia/Shanghai"
+#    command: sh -c "java -jar /workspace/target/hdu-vboard-0.0.1.jar --spring.profiles.active=$SPRING_PROFILES_ACTIVE"
+#    depends_on:
+#      mysql:
+#        condition: service_healthy
+#      redis:
+#        condition: service_started
+#      nacos:
+#        condition: service_healthy
+#    networks:
+#      - fpga-net
+
+
+networks:
+  fpga-net:
+    external: true

@@ -93,6 +93,7 @@ public class LocalCache<K, V> {
         }, SCAN_THREAD_NAME);
     }
 
+    @SuppressWarnings({ "unused", "unchecked" })
     private void regularRandomElimination() {
         Object[] keyArr = cache.keySet().toArray();
         if (keyArr.length == 0) {

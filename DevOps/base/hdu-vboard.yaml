@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hdu-vboard
+  namespace: fpga
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hdu-vboard
+  template:
+    metadata:
+      labels:
+        app: hdu-vboard
+    spec:
+      nodeSelector:
+        role: gateway
+      containers:
+        - name: hdu-vboard
+          image: hdu-vboard:test
+          ports:
+            - containerPort: 9999
+          command: [ "/bin/sh", "-c" ]
+          args:
+            - "java -jar /workspace/target/hdu-vboard-0.0.1.jar --spring.profiles.active=$SPRING_PROFILES_ACTIVE"
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: TZ
+              value: "Asia/Shanghai"
+          volumeMounts:
+            - name: vboard-log
+              mountPath: /workspace/logs
+            - name: vboard-jar
+              mountPath: /workspace/target/hdu-vboard-0.0.1.jar
+      volumes:
+        - name: vboard-jar
+          hostPath:
+            path: /workspace/target/hdu-vboard-0.0.1.jar
+            type: File
+        - name: vboard-log
+          persistentVolumeClaim:
+            claimName: vboard-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hdu-vboard
+  namespace: fpga
+spec:
+  type: NodePort
+  ports:
+    - port: 9999
+      targetPort: 9999
+      nodePort: 30099
+  selector:
+    app: hdu-vboard

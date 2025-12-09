@@ -56,6 +56,10 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
         if (msg.contains("STAT")) {
             processSTATReq(ip, msg);
         }
+//        if(msg.contains("image")){
+////            processSTATReq();
+//            // todo
+//        }
     }
 
     @Override

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seata
+  namespace: fpga
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seata
+  template:
+    metadata:
+      labels:
+        app: seata
+    spec:
+      nodeSelector:
+        role: dis
+      # 关键配置：禁用 Kubernetes 服务环境变量注入
+      enableServiceLinks: false
+      containers:
+        - name: seata
+          image: seataio/seata-server:2.0.0
+          ports:
+            - containerPort: 8091
+          env:
+            - name: SEATA_CONFIG_NAME
+              value: "file:/root/seata-config/registry.conf"
+            # 显式设置正确的环境变量
+            - name: SEATA_SERVER_SERVICE_PORT
+              value: "8091"
+            - name: SERVER_PORT
+              value: "7091"  # 控制台端口
+          volumeMounts:
+            - name: seata-config
+              mountPath: /root/seata-config
+      volumes:
+        - name: seata-config
+          configMap:
+            name: seata-config

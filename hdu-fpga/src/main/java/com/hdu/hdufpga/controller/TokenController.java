@@ -3,7 +3,7 @@ package com.hdu.hdufpga.controller;
 import com.hdu.hdufpga.annotation.CheckToken;
 import com.hdu.hdufpga.entity.Result;
 import com.hdu.hdufpga.entity.vo.UserVO;
-import com.hdu.hdufpga.service.TokenService;
+import com.hdu.hdufpga.service.CbTokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,13 +18,13 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class TokenController {
     @Resource
-    TokenService tokenService;
+    CbTokenService cbTokenService;
 
     //level >= 1
     @GetMapping("/generateToken")
     public Result generateToken(UserVO userVO) {
         try {
-            return Result.ok(tokenService.generateToken(userVO));
+            return Result.ok(cbTokenService.generateToken(userVO));
         } catch (Exception e) {
             log.error(e.getMessage());
             return Result.error(e.getMessage());
@@ -37,7 +37,7 @@ public class TokenController {
     public Result reload(HttpServletRequest request) {
         try {
             String token = request.getHeader("token");
-            return Result.ok(tokenService.reload(token));
+            return Result.ok(cbTokenService.reload(token));
         } catch (Exception e) {
             log.error(e.getMessage());
             return Result.error(e.getMessage());
@@ -50,7 +50,7 @@ public class TokenController {
     public Result checkToken(HttpServletRequest request) {
         try {
             String token = request.getHeader("token");
-            return Result.ok(tokenService.checkToken(token));
+            return Result.ok(cbTokenService.checkToken(token));
         } catch (Exception e) {
             log.error(e.getMessage());
             return Result.error(e.getMessage());

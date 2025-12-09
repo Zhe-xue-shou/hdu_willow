@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: fpga
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "" # empty string to disable dynamic provisioning
+  selector:
+    matchLabels:
+      app: mysql-data
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-init-pvc
+  namespace: fpga
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  selector:
+    matchLabels:
+      app: mysql-init
+  resources:
+    requests:
+      storage: 1Gi

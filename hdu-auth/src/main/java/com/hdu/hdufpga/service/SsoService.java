@@ -29,6 +29,8 @@ public class SsoService {
     @DubboReference(group = "recordSso", check = false)
     private AbstractSsoService recordSsoService;
 
+    // todo!()
+
     private void init() {
         if (ssoServices.isEmpty()) {
             ssoServices.add(accountSsoService);

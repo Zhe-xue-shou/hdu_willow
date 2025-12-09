@@ -7,7 +7,9 @@ import java.util.HashMap;
 
 //线程安全的懒汉模式
 public class NettySocketHolder {
-
+    // token -> Hashmap{
+    // IP , LightStatus, ButtonStatus, ...
+    // }
     private static final HashMap<String, HashMap<String, Object>> nettySocketHolder = new HashMap<>(100);
 
     /**

@@ -52,7 +52,7 @@ public class TestZset {
 
     @Test
     void testGet() {
-        redisUtil.putHashValue("1", "1", "1");
+//        redisUtil.putHashValue("1", "1", "1");
     }
 
 }

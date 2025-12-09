@@ -5,6 +5,8 @@ import cn.dev33.satoken.stp.StpUtil;
 /**
  * 子系统SSO抽象类
  */
+
+// todo!()
 public interface AbstractSsoService {
 
 

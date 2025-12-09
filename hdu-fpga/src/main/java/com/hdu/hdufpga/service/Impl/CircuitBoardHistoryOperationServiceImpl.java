@@ -14,7 +14,6 @@ import com.hdu.hdufpga.utils.SysFileUtil;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

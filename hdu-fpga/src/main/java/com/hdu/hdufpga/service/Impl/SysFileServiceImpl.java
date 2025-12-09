@@ -3,7 +3,7 @@ package com.hdu.hdufpga.service.Impl;
 import cn.hutool.core.io.FileUtil;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.hdu.hdufpga.entity.po.SysFilePO;
-import com.hdu.hdufpga.exception.InvalidFileSuffixException;
+import com.hdu.svccmn.exception.InvalidFileSuffixException;
 import com.hdu.hdufpga.mapper.SysFileMapper;
 import com.hdu.hdufpga.service.CircuitBoardHistoryOperationService;
 import com.hdu.hdufpga.service.CircuitBoardService;

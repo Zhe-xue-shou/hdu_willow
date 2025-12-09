@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  namespace: fpga
+# data:
+# Add any specific MySQL configurations here if needed
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: fpga
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - image: mysql:oracle
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: MySQL142536
+            - name: MYSQL_DATABASE
+              value: nacos
+            - name: MYSQL_USER
+              value: nacos
+            - name: MYSQL_PASSWORD
+              value: MySQL142536
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+            - name: mysql-init-storage
+              mountPath: /docker-entrypoint-initdb.d
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+                - -u
+                - root
+                - -pMySQL142536
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 90
+            failureThreshold: 5
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+        - name: mysql-init-storage
+          persistentVolumeClaim:
+            claimName: mysql-init-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: fpga
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: mysql
+  type: NodePort

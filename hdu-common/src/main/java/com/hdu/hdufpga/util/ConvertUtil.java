@@ -9,7 +9,7 @@ import java.util.List;
 @Slf4j
 public class ConvertUtil {
     //多个实体的复制
-    public static <T> List<T> copyList(List source, Class<T> clazz) {
+    public static <T> List<T> copyList(List<?> source, Class<T> clazz) {
         List<T> target = new ArrayList<>();
         for (Object o : source) {
             target.add(copy(o, clazz));

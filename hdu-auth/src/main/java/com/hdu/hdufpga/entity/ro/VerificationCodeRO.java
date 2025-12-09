@@ -15,19 +15,23 @@ public class VerificationCodeRO {
     /**
      * 宽度
      */
+    @Builder.Default
     Integer width = 200;
     /**
      * 长度
      */
+    @Builder.Default
     Integer height = 50;
 
     /**
      * 干扰线长度
      */
+    @Builder.Default
     Integer thickness = 4;
 
     /**
      * 验证码长度
      */
+    @Builder.Default
     Integer numberLength = 1;
 }

@@ -2,10 +2,12 @@ package com.hdu.hdufpga.entity;
 
 import cn.hutool.json.JSONUtil;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Data
+@NoArgsConstructor
 public class Result implements Serializable {
     public static final Integer CODE = 0;
     private static final long serialVersionUID = 1L;
@@ -14,10 +16,6 @@ public class Result implements Serializable {
     private String msg;
 
     private Object result;
-
-    public Result() {
-
-    }
 
     public Result(Integer code) {
         this.code = code;
@@ -38,7 +36,7 @@ public class Result implements Serializable {
     }
 
     public static Result error() {
-        return error(500, "未知异常，请联系管理员");
+        return error(500, "unknown error");
     }
 
     public static Result error(String msg) {

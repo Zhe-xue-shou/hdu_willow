@@ -28,4 +28,10 @@ public class UserPO extends BaseEntity {
     private String userRoleName;
     @TableField(exist = false)
     private Integer privilegeLevel;
+    // not null
+    @TableField("tot_active_time")
+    private Long totActiveTime;
+    // not null
+    @TableField("tot_exp_cnt")
+    private Integer totExpCnt;
 }

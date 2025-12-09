@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: fpga
+spec:
+  storageClassName: ""   # 保持和 PV 一致
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  selector:
+    matchLabels:
+      app: mysql-data   # 👈 必须和 PV 里的 labels 对应

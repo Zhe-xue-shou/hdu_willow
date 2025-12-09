@@ -3,6 +3,12 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+hdu-vboard/vb/
+hdu-vboard/src/test/
+hdu-vboard/logs/
+test/
+.attach_pid*
+
 
 ### STS ###
 .apt_generated
@@ -31,3 +37,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Gradle ###
+.gradle/
+
+### Temporary ###
+*.kts
+*.tar
+
+### Whatsit ###
+notes.txt
+
+### LocalFile ###
+local_image.sh

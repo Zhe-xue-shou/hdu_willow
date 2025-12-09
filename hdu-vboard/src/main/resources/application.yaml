@@ -1,0 +1,7 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: hdu-vboard
+server:
+  port: 9999

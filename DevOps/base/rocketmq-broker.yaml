@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rmq-broker
+  namespace: fpga
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rmq-broker
+  template:
+    metadata:
+      labels:
+        app: rmq-broker
+    spec:
+      nodeSelector:
+        role: dis
+      containers:
+        - name: rmq-broker
+          image: apache/rocketmq:5.3.1
+          command: [ "sh", "mqbroker", "-c", "/opt/rocketmq-5.3.1/conf/broker.conf" ]
+          ports:
+            - containerPort: 10909
+            - containerPort: 10911
+            - containerPort: 10912
+          env:
+            - name: NAMESRV_ADDR
+              value: rmq-namesrv:9876
+          volumeMounts:
+            - name: broker-config
+              mountPath: /opt/rocketmq-5.3.1/conf/broker.conf
+              subPath: broker.conf
+      volumes:
+        - name: broker-config
+          configMap:
+            name: broker-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rmq-broker
+  namespace: fpga
+spec:
+  ports:
+    - name: borker-port-1
+      port: 10909
+      targetPort: 10909
+    - name: borker-port-2
+      port: 10911
+      targetPort: 10911
+    - name: borker-port-3
+      port: 10912
+      targetPort: 10912
+  selector:
+    app: rmq-broker

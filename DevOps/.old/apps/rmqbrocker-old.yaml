@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: broker-config
+  namespace: fpga
+data:
+  broker.conf: |
+    brokerClusterName = DefaultCluster
+    brokerName = broker-a
+    nameservAddr = localhost:9876
+    brokerIP1 = localhost
+    autoCreateTopicEnable = true
+    brokerId = 0
+    deleteWhen = 04
+    fileReservedTime = 48
+    brokerRole = ASYNC_MASTER
+    flushDiskType = ASYNC_FLUSH
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rmqbroker
+  namespace: fpga
+spec:
+  selector:
+    matchLabels:
+      app: rmqbroker
+  template:
+    metadata:
+      labels:
+        app: rmqbroker
+    spec:
+      containers:
+        - name: rmqbroker
+          image: apache/rocketmq:5.3.1
+          command:
+            ["sh", "mqbroker", "-c", "/opt/rocketmq-5.3.1/conf/broker.conf"]
+          ports:
+            - containerPort: 10909
+            - containerPort: 10911
+            - containerPort: 10912
+          env:
+            - name: NAMESRV_ADDR
+              value: rmqnamesrv.fpga.svc.cluster.local:9876
+          volumeMounts:
+            - name: broker-config-volume
+              mountPath: /opt/rocketmq-5.3.1/conf/broker.conf
+              subPath: broker.conf
+      volumes:
+        - name: broker-config-volume
+          configMap:
+            name: broker-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rmqbroker
+  namespace: fpga
+spec:
+  selector:
+    app: rmqbroker
+  ports:
+    - name: port10909
+      port: 10909
+      targetPort: 10909
+    - name: port10911
+      port: 10911
+      targetPort: 10911
+    - name: port10912
+      port: 10912
+      targetPort: 10912
+  type: NodePort
