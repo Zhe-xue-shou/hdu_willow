@@ -8,6 +8,7 @@ import com.hdu.vboard.entity.constant.VbRedisConstant;
 import com.hdu.vboard.event.WorkerStateChangedEvent;
 import com.hdu.vboard.exception.CreateWorkbenchException;
 import com.hdu.vboard.exception.MakeWorkbenchException;
+import com.hdu.vboard.service.VbUseRecordService;
 import com.hdu.vboard.service.VirtualBoardService;
 import com.hdu.vboard.util.VbSysFileUtil;
 import com.hdu.vboard.util.VirtualBoardUtil;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +39,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
   @Resource
   ApplicationEventPublisher applicationEventPublisher;
+
+  @Resource
+  VbUseRecordService vbUseRecordService;
 
   @Value("${script.pyPath}")
   private String pyPath;
@@ -187,7 +192,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     if (oldWorker != null) {
       log.info("Find old simulation worker for token:{}", workspaceName);
       try {
-        stopWorkbench(workspaceName);
+        stopWorkbench(workspaceName, 2);
         log.info("Stop old simulation worker for token:{}", workspaceName);
       } catch (Exception e) {
         log.error("Error to stop simulation worker for token:{}", workspaceName);
@@ -258,7 +263,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
   // 先清理文件，再停止线程，防止资源泄露
   @Override
-  public Boolean stopWorkbench(String workspaceName) throws Exception {
+  public Boolean stopWorkbench(String workspaceName, int status) throws Exception {
     redisUtil.del(VbRedisConstant.REDIS_VB_TTL_PREFIX + workspaceName);
     clearWorkbench(workspaceName);
     SimulationWorkerBO simulationWorkerBO = simulationWorkers.remove(workspaceName);
@@ -270,6 +275,11 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     if (simulationWorkerBO.simulationProcess.isAlive()) {
       simulationWorkerBO.simulationProcess.destroy();
       log.info("simulation process:{} stopped!", workspaceName);
+    }
+    if (!vbUseRecordService.saveVbRecord(workspaceName, status)) {
+      throw new SQLException("save user vb use record error token: {}", workspaceName);
+    }else{
+      log.debug("Successfully insert vb record into t_vb_use_record");
     }
     return true;
   }
