@@ -2,10 +2,13 @@ package com.hdu.vboard.entity.po;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hdu.hdufpga.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 @TableName("t_vb_use_record")
 @Data
@@ -21,7 +24,8 @@ public class VbUseRecordPO extends BaseEntity {
 
   private Integer duration;
 
-  private Integer fileUploadTime;
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+  private Date buildTime;
 
   private Integer status;
 }

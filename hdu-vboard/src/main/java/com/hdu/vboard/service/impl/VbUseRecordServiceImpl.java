@@ -1,31 +1,26 @@
 package com.hdu.vboard.service.impl;
 
-import cn.hutool.extra.servlet.ServletUtil;
 import com.github.yulichang.base.MPJBaseServiceImpl;
+import com.hdu.hdufpga.util.TimeUtil;
 import com.hdu.vboard.entity.po.VbUseRecordPO;
+import com.hdu.vboard.entity.vo.VbConnectionVO;
 import com.hdu.vboard.mapper.VbUseRecordMapper;
 import com.hdu.vboard.service.VbUseRecordService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
 @Service
 public class VbUseRecordServiceImpl extends MPJBaseServiceImpl<VbUseRecordMapper, VbUseRecordPO> implements VbUseRecordService {
-
-  @Resource
-  HttpServletRequest request;
-
   @Override
-  public Boolean saveVbRecord(String token, int status) {
-    String[] info = token.split("_");
+  public Boolean saveVbRecord(VbConnectionVO vbConnectionVO, int status) {
     VbUseRecordPO vbUseRecordPO = new VbUseRecordPO();
-    vbUseRecordPO.setUserName(info[0]);
-    vbUseRecordPO.setUserIp(ServletUtil.getClientIP(request));
-    vbUseRecordPO.setDepartmentName(info[1]);
+    vbUseRecordPO.setUserName(vbConnectionVO.getUserName());
+    vbUseRecordPO.setUserIp(vbConnectionVO.getUserIp());
+    vbUseRecordPO.setDepartmentName(vbConnectionVO.getDepartmentName());
     vbUseRecordPO.setDuration(114514);
-    vbUseRecordPO.setFileUploadTime(1);
+    vbUseRecordPO.setBuildTime(vbConnectionVO.getBuildTime());
     vbUseRecordPO.setStatus(status);
+    vbUseRecordPO.setCreateTime(TimeUtil.getNowTime());
+    vbUseRecordPO.setUpdateTime(TimeUtil.getNowTime());
     return save(vbUseRecordPO);
   }
 }

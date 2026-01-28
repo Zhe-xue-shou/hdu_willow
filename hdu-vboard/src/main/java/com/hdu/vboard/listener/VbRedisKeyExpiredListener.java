@@ -37,6 +37,7 @@ public class VbRedisKeyExpiredListener extends KeyExpirationEventMessageListener
   @Override
   public void onMessage(@NonNull Message message, @Nullable byte[] pattern) {
     String expiredKey = message.toString();
+
     try {
       log.debug("expiredKey:{}", expiredKey);
       String[] split = expiredKey.split(":");

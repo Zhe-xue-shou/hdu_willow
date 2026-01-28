@@ -4,6 +4,8 @@
 3. token逻辑拆分
 4. 测试模块
 5. session和token？
+6. 可以再做一个步骤记录（不支持回溯）
+7. redis vb token过期时间被更改了(3*60 -> 1*30) 记得改回去
 
 ## fixlist
 1. 登录接口是/auth/login 前端写的是/user/account/login
@@ -22,3 +24,7 @@
 - hdu-vboard 虚拟板卡实验模块 目前没有接入数据库
 - 登录逻辑：username+"-"+departmentId作为整个门户平台登录的loginId 子系统也通过*作为loginId
   也就是说 主系统和子系统的登录逻辑是一样的 只是显式地区分了登录的语句
+- operation-step 外存保存 记录每一步骤 reload即依次执行每一步
+
+## buglist
+1. redis过期时没有request，无法获取ip，需要单独抽象connection保存到redis中
