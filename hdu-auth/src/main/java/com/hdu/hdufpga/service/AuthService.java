@@ -47,6 +47,7 @@ public class AuthService {
      * @return 子系统的登录信息
      */
     public Object login(LoginRO loginRO) throws Exception{
+        log.debug("LoginRO: {}",loginRO);
         String username = loginRO.getUsername();
         String password = loginRO.getPassword();
         Integer departmentId = loginRO.getDepartmentId();

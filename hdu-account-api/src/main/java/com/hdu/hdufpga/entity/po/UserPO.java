@@ -29,9 +29,11 @@ public class UserPO extends BaseEntity {
     @TableField(exist = false)
     private Integer privilegeLevel;
     // not null
-    @TableField("tot_active_time")
+    // todo!()
+    @TableField(exist = false)
     private Long totActiveTime;
     // not null
-    @TableField("tot_exp_cnt")
+    // todo!()
+    @TableField(exist = false)
     private Integer totExpCnt;
 }

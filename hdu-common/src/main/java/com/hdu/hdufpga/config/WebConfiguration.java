@@ -17,6 +17,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .allowedOrigins(allowedOrigins)
                 .allowedMethods("POST", "GET", "OPTIONS", "DELETE", "PUT")
                 .allowedHeaders("x-requested-with", "satoken", "Content-Type", "Authorization", "token")
+                .exposedHeaders("uuid")
                 .allowCredentials(true);
     }
 }
