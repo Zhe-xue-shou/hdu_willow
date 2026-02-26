@@ -15,6 +15,8 @@ spring:
           uri: lb://hdu-auth
           predicates:
             - Path=/auth/**
+          filters:
+            - StripPrefix=1
         - id: hdu-interrupt
           uri: lb://hdu-interrupt
           predicates:

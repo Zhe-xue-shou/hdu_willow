@@ -7,6 +7,7 @@ import cn.hutool.captcha.generator.MathGenerator;
 import cn.hutool.core.math.Calculator;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import com.hdu.hdufpga.entity.constant.SysConstant;
 import com.hdu.hdufpga.entity.po.UserPO;
 import com.hdu.hdufpga.entity.ro.LoginRO;
@@ -46,56 +47,120 @@ public class AuthService {
    *
    * @return 子系统的登录信息
    */
+//  public Object login(LoginRO loginRO) throws Exception {
+//    log.debug("LoginRO: {}", loginRO);
+//    String username = loginRO.getUsername();
+//    String password = loginRO.getPassword();
+//    Integer departmentId = loginRO.getDepartmentId();
+//    String applicationName = loginRO.getApplicationName();
+//    String verificationCodeKey = loginRO.getVerificationCodeKey();
+//    String verificationCodeValue = loginRO.getVerificationCodeValue();
+//    // 如果已经登录则直接返回，登录名为用户名+学校id
+//    String loginName = username + SysConstant.DASH + departmentId;
+//    Object isLogin = isLogin(loginName, applicationName);
+//    if (Objects.nonNull(isLogin)) {
+//      return isLogin;
+//    }
+//    // 验证码是否正确
+//    if (StrUtil.isBlank(verificationCodeKey) || StrUtil.isBlank(verificationCodeValue)) {
+//      throw new VerificationCodeException("验证码为空");
+//    }
+//    Integer code = (Integer) redisUtil.get(verificationCodeKey);
+//    redisUtil.del(verificationCodeKey);
+//    if (!StrUtil.equals(String.valueOf(code), verificationCodeValue)) {
+//      throw new VerificationCodeException("验证码错误");
+//    }
+//    log.debug("验证码检验通过");
+//    // 查询用户信息
+//    UserPO userPO = userService.getUserByUserName(username, departmentId);
+//    if (Objects.isNull(userPO)) {
+//      throw new AccountVerifyException("用户名为空");
+//    }
+//    // 比较密码
+//    if (!StrUtil.equals(password, userPO.getPassword())) {
+//      throw new AccountVerifyException("用户名或密码错误");
+//    }
+//    log.debug("账户验证成功");
+//    // 通知子系统登录并获取他们的token信息
+//    AbstractSsoService service = ssoService.getSsoService(applicationName);
+//    if (Objects.isNull(service)) {
+//      log.error("Service为空(null)");
+//      return null;
+//    }
+//    Object result = service.login(loginName);
+//    // 登录成功则登录SSO系统
+//    if (Objects.nonNull(result)) {
+//      StpUtil.login(loginName);
+//      log.info("{} 成功登录 {} 子系统!", username, applicationName);
+//      return result;
+//    } else {
+//      log.debug("None");
+//    }
+//    return null;
+//  }
+
+  /**
+   * SSO登录（只负责认证 + 生成token）
+   */
   public Object login(LoginRO loginRO) throws Exception {
     log.debug("LoginRO: {}", loginRO);
+
     String username = loginRO.getUsername();
     String password = loginRO.getPassword();
     Integer departmentId = loginRO.getDepartmentId();
-    String applicationName = loginRO.getApplicationName();
     String verificationCodeKey = loginRO.getVerificationCodeKey();
     String verificationCodeValue = loginRO.getVerificationCodeValue();
-    // 如果已经登录则直接返回，登录名为用户名+学校id
-    String loginName = username + SysConstant.DASH + departmentId;
-    Object isLogin = isLogin(loginName, applicationName);
-    if (Objects.nonNull(isLogin)) {
-      return isLogin;
+
+    if (StrUtil.hasBlank(username, password, verificationCodeKey, verificationCodeValue)) {
+      throw new RuntimeException("参数不完整");
     }
-    // 验证码是否正确
-    if (StrUtil.isBlank(verificationCodeKey) || StrUtil.isBlank(verificationCodeValue)) {
-      throw new VerificationCodeException("验证码为空");
+
+    String loginId = username + SysConstant.DASH + departmentId;
+
+    if (StpUtil.isLogin()) {
+      log.info("{} 已登录", loginId);
+      return buildLoginResult(loginId);
     }
-    Integer code = (Integer) redisUtil.get(verificationCodeKey);
+
+    Object code = redisUtil.get(verificationCodeKey);
     redisUtil.del(verificationCodeKey);
-    if (!StrUtil.equals(String.valueOf(code), verificationCodeValue)) {
+
+    if (code == null || !StrUtil.equals(String.valueOf(code), verificationCodeValue)) {
       throw new VerificationCodeException("验证码错误");
     }
-    log.debug("验证码检验通过");
-    // 查询用户信息
+
+    log.debug("验证码校验通过");
+
     UserPO userPO = userService.getUserByUserName(username, departmentId);
-    if (Objects.isNull(userPO)) {
-      throw new AccountVerifyException("用户名为空");
+
+    if (userPO == null) {
+      throw new AccountVerifyException("用户不存在");
     }
-    // 比较密码
+
     if (!StrUtil.equals(password, userPO.getPassword())) {
       throw new AccountVerifyException("用户名或密码错误");
     }
+
     log.debug("账户验证成功");
-    // 通知子系统登录并获取他们的token信息
-    AbstractSsoService service = ssoService.getSsoService(applicationName);
-    if (Objects.isNull(service)) {
-      log.error("Service为空(null)");
-      return null;
-    }
-    Object result = service.login(loginName);
-    // 登录成功则登录SSO系统
-    if (Objects.nonNull(result)) {
-      StpUtil.login(loginName);
-      log.info("{} 成功登录 {} 子系统!", username, applicationName);
-      return result;
-    } else {
-      log.debug("None");
-    }
-    return null;
+
+    StpUtil.login(loginId);
+
+    log.info("{} 登录成功", loginId);
+
+    return buildLoginResult(loginId);
+  }
+
+
+  /**
+   * 构造登录返回信息
+   */
+  private JSONObject buildLoginResult(String loginId) {
+    JSONObject result = new JSONObject();
+    result.set("loginId", loginId);
+    result.set("tokenName", StpUtil.getTokenName());
+    result.set("tokenValue", StpUtil.getTokenValue());
+    result.set("isLogin", true);
+    return result;
   }
 
   /**

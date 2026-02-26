@@ -16,6 +16,11 @@ spring:
     host: localhost
     port: 6379
     database: 2
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: cea83c1b-7a99-4bb1-8596-895a4faab520
 dubbo:
   application:
     name: ${spring.application.name}
