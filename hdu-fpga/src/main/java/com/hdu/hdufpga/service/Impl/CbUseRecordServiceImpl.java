@@ -12,20 +12,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class CbUseRecordServiceImpl extends MPJBaseServiceImpl<CbUseRecordMapper, CbUseRecordPO> implements CbUseRecordService {
 
-    @Override
-    public Boolean saveUseRecord(UserConnectionVO userConnectionVO) {
-        CbUseRecordPO cbUseRecordPO = new CbUseRecordPO();
-        String token = userConnectionVO.getToken();
-        String[] info = token.split("_");
-        cbUseRecordPO.setCbId(userConnectionVO.getLongId());
-        cbUseRecordPO.setCbIp(userConnectionVO.getCbIp());
-        cbUseRecordPO.setUserName(info[0]);
-        cbUseRecordPO.setUserIp(userConnectionVO.getUserIp());
-        cbUseRecordPO.setDepartmentName(info[1]);
-        cbUseRecordPO.setFileUploadTime(1);
-        cbUseRecordPO.setDuration((int) (RedisConstant.REDIS_CONN_SHADOW_LIMIT - userConnectionVO.getLeftSecond()));
-        cbUseRecordPO.setCreateTime(TimeUtil.getNowTime());
-        cbUseRecordPO.setUpdateTime(TimeUtil.getNowTime());
-        return save(cbUseRecordPO);
-    }
+  @Override
+  public Boolean saveUseRecord(UserConnectionVO userConnectionVO) {
+    CbUseRecordPO cbUseRecordPO = new CbUseRecordPO();
+    String token = userConnectionVO.getToken();
+    String[] info = token.split("_");
+    cbUseRecordPO.setCbId(userConnectionVO.getLongId());
+    cbUseRecordPO.setCbIp(userConnectionVO.getCbIp());
+    cbUseRecordPO.setUserName(info[0]);
+    cbUseRecordPO.setUserIp(userConnectionVO.getUserIp());
+    cbUseRecordPO.setDepartmentName(info[1]);
+    cbUseRecordPO.setFileUploadTime(1);
+    cbUseRecordPO.setDuration((int) (RedisConstant.REDIS_CONN_SHADOW_LIMIT - userConnectionVO.getLeftSecond()));
+    cbUseRecordPO.setCreateTime(TimeUtil.getNowTime());
+    cbUseRecordPO.setUpdateTime(TimeUtil.getNowTime());
+    return save(cbUseRecordPO);
+  }
 }

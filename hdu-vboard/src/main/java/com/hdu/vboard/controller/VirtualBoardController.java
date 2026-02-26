@@ -143,7 +143,7 @@ public class VirtualBoardController /*extends BaseController<VirtualBoardService
   public Result finish(HttpServletRequest request) {
     String token = request.getHeader("token");
     try {
-      return Result.ok(virtualBoardService.stopWorkbench(token));
+      return Result.ok(virtualBoardService.stopWorkbench(token, 0));
     } catch (Exception e) {
       log.error(e.getMessage());
       return Result.error(e.getMessage());

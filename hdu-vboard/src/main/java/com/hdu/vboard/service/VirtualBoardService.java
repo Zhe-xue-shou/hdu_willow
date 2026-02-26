@@ -1,7 +1,6 @@
 package com.hdu.vboard.service;
 
 import cn.hutool.json.JSONObject;
-import com.hdu.vboard.entity.bo.SimulationWorkerBO;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ public interface VirtualBoardService {
 
   JSONObject getSignalFromVirtualBoard(String workspaceName) throws Exception;
 
-  Boolean stopWorkbench(String workspaceName) throws Exception;
+  Boolean stopWorkbench(String workspaceName, int status) throws Exception;
 
   Boolean clearWorkbench(String workspaceName) throws Exception;
 }

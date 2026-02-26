@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: hdu-vboard
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848  # 改为容器服务名
+        namespace: cea83c1b-7a99-4bb1-8596-895a4faab520
+  redis:
+    host: redis  # 改为容器服务名
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: MySQL142536
+    url: jdbc:mysql://mysql:3306/hdu-interrupt?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true  # 改为容器服务名
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+seata:
+  service:
+    vgroup-mapping:
+      hdu-account-seata-service-group: default
+      hdu-interrupt-seata-service-group: default
+      hdu-fpga-seata-service-group: default
+      hdu-record-seata-service-group: default
+    grouplist:
+      default: seata:8091  # 改为容器服务名
+server:
+  port: 9999
+netty:
+  port: 60020
+  boss:
+    thread:
+      count: 2
+  worker:
+    thread:
+      count: 2
+  keepalive: false
+  backlog: 100
+dubbo:
+  application:
+    name: ${spring.application.name}
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    address: nacos://nacos:8848  # 改为容器服务名
+    group: dubbo
+    register-mode: interface
+    parameters:
+      namespace: c29600b0-2e5d-450b-bab0-e56d78292d51
+  metadata-report:
+    address: nacos://nacos:8848  # 改为容器服务名
+cors:
+  allowed-origins:
+    "http://localhost:5173"
+
+# constants
+script:
+  pyPath: "/usr/bin/python3"
+  filePath: "src/main/python/script/create_workbench.py"
+verilator:
+  path: "/usr/local/bin/verilator"

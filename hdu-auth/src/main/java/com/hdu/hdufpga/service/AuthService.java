@@ -11,6 +11,8 @@ import com.hdu.hdufpga.entity.constant.SysConstant;
 import com.hdu.hdufpga.entity.po.UserPO;
 import com.hdu.hdufpga.entity.ro.LoginRO;
 import com.hdu.hdufpga.entity.ro.VerificationCodeRO;
+import com.hdu.hdufpga.exception.AccountVerifyException;
+import com.hdu.hdufpga.exception.VerificationCodeException;
 import com.hdu.hdufpga.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -44,7 +46,8 @@ public class AuthService {
      *
      * @return 子系统的登录信息
      */
-    public Object login(LoginRO loginRO) {
+    public Object login(LoginRO loginRO) throws Exception{
+        log.debug("LoginRO: {}",loginRO);
         String username = loginRO.getUsername();
         String password = loginRO.getPassword();
         Integer departmentId = loginRO.getDepartmentId();
@@ -59,25 +62,28 @@ public class AuthService {
         }
         // 验证码是否正确
         if (StrUtil.isBlank(verificationCodeKey) || StrUtil.isBlank(verificationCodeValue)) {
-            return null;
+            throw new VerificationCodeException("验证码为空");
         }
         Integer code = (Integer) redisUtil.get(verificationCodeKey);
         redisUtil.del(verificationCodeKey);
         if (!StrUtil.equals(String.valueOf(code), verificationCodeValue)) {
-            return null;
+            throw new VerificationCodeException("验证码错误");
         }
+        log.debug("验证码检验通过");
         // 查询用户信息
         UserPO userPO = userService.getUserByUserName(username, departmentId);
         if (Objects.isNull(userPO)) {
-            return null;
+            throw new AccountVerifyException("用户名为空");
         }
         // 比较密码
         if (!StrUtil.equals(password, userPO.getPassword())) {
-            return null;
+            throw new AccountVerifyException("用户名或密码错误");
         }
+        log.debug("账户验证成功");
         // 通知子系统登录并获取他们的token信息
         AbstractSsoService service = ssoService.getSsoService(applicationName);
         if (Objects.isNull(service)) {
+            log.error("Service为空(null)");
             return null;
         }
         Object result = service.login(loginName);

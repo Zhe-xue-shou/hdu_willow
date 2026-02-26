@@ -3,6 +3,7 @@ package com.hdu.vboard.listener;
 import com.hdu.hdufpga.config.RedisConfiguration;
 import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.vboard.entity.constant.VbRedisConstant;
+import com.hdu.vboard.service.VbUseRecordService;
 import com.hdu.vboard.service.VirtualBoardService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
@@ -14,6 +15,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.sql.SQLException;
 
 @Component
 @Slf4j
@@ -25,6 +27,9 @@ public class VbRedisKeyExpiredListener extends KeyExpirationEventMessageListener
   @Resource
   private VirtualBoardService virtualBoardService;
 
+  @Resource
+  private VbUseRecordService vbUseRecordService;
+
   public VbRedisKeyExpiredListener(RedisMessageListenerContainer listenerContainer) {
     super(listenerContainer);
   }
@@ -32,6 +37,7 @@ public class VbRedisKeyExpiredListener extends KeyExpirationEventMessageListener
   @Override
   public void onMessage(@NonNull Message message, @Nullable byte[] pattern) {
     String expiredKey = message.toString();
+
     try {
       log.debug("expiredKey:{}", expiredKey);
       String[] split = expiredKey.split(":");
@@ -49,7 +55,7 @@ public class VbRedisKeyExpiredListener extends KeyExpirationEventMessageListener
 
   private void freeVirtualBoard(String token) {
     try {
-      virtualBoardService.stopWorkbench(token);
+      virtualBoardService.stopWorkbench(token, 1);
       log.info("Time out to free workbench for token:{} successfully", token);
     } catch (Exception e) {
       log.warn(e.toString());
