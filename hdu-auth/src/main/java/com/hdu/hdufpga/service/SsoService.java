@@ -67,6 +67,7 @@ public class SsoService {
         init();
         for (AbstractSsoService ssoService : ssoServices) {
             if (Objects.nonNull(ssoService) && StrUtil.equals(ssoService.getApplicationName(), applicationName)) {
+                log.debug("Get ssoService");
                 return ssoService;
             }
         }

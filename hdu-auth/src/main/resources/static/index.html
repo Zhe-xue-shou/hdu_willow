@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>验证码测试页面</title>
+    <title>验证码测试与登录页面</title>
     <style>
         * {
             margin: 0;
@@ -26,7 +26,7 @@
             border-radius: 15px;
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
         }
 
@@ -42,6 +42,36 @@
             color: #666;
             margin-bottom: 30px;
             line-height: 1.5;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e1e5e9;
+            padding-bottom: 10px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .controls {
@@ -63,7 +93,7 @@
             font-weight: 500;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 8px 12px;
             border: 2px solid #e1e5e9;
@@ -72,7 +102,7 @@
             transition: border-color 0.3s;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -102,6 +132,16 @@
         .generate-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
         }
 
         .reset-btn {
@@ -191,6 +231,12 @@
             border: 1px solid #f5c6cb;
         }
 
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
         .loading {
             display: inline-block;
             width: 20px;
@@ -206,64 +252,171 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .login-form {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .form-row {
+            margin-bottom: 15px;
+        }
+
+        .verification-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .verification-row input {
+            flex: 2;
+        }
+
+        .verification-row select {
+            flex: 1;
+        }
+
+        .token-display {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            word-break: break-all;
+        }
+
+        .token-display h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .token-value {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>🔐 验证码生成测试</h1>
+    <h1>🔐 验证码测试与登录系统</h1>
 
-    <div class="description">
-        点击生成验证码按钮，系统会创建数学验证码图片并显示在下方
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('captcha')">验证码生成</div>
+        <div class="tab" onclick="switchTab('login')">用户登录</div>
     </div>
 
-    <div class="controls">
-        <div class="param-input">
-            <label for="width">宽度</label>
-            <input type="number" id="width" value="200" min="100" max="500">
+    <!-- 验证码生成Tab -->
+    <div id="captcha-tab" class="tab-content active">
+        <div class="description">
+            点击生成验证码按钮，系统会创建数学验证码图片并显示在下方
         </div>
-        <div class="param-input">
-            <label for="height">高度</label>
-            <input type="number" id="height" value="50" min="30" max="200">
+
+        <div class="controls">
+            <div class="param-input">
+                <label for="width">宽度</label>
+                <input type="number" id="width" value="200" min="100" max="500">
+            </div>
+            <div class="param-input">
+                <label for="height">高度</label>
+                <input type="number" id="height" value="50" min="30" max="200">
+            </div>
+            <div class="param-input">
+                <label for="thickness">线条粗细</label>
+                <input type="number" id="thickness" value="4" min="1" max="10">
+            </div>
+            <div class="param-input">
+                <label for="numberLength">数字长度</label>
+                <input type="number" id="numberLength" value="1" min="1" max="3">
+            </div>
         </div>
-        <div class="param-input">
-            <label for="thickness">线条粗细</label>
-            <input type="number" id="thickness" value="4" min="1" max="10">
+
+        <div class="button-group">
+            <button class="generate-btn" onclick="generateCaptcha()">
+                <span id="generate-text">🔄 生成验证码</span>
+            </button>
+            <button class="reset-btn" onclick="resetCaptchaForm()">🔄 重置参数</button>
         </div>
-        <div class="param-input">
-            <label for="numberLength">数字长度</label>
-            <input type="number" id="numberLength" value="1" min="1" max="3">
+
+        <div class="captcha-container">
+            <div id="captcha-placeholder">
+                <p style="color: #999;">验证码将在这里显示</p>
+            </div>
+            <img id="captcha-image" class="captcha-image" style="display: none;">
+        </div>
+
+        <div class="info-panel" id="info-panel" style="display: none;">
+            <h3 style="margin-bottom: 15px; color: #0056b3;">📋 验证码信息</h3>
+            <div class="info-item">
+                <span class="info-label">UUID:</span>
+                <span class="info-value" id="uuid-value"></span>
+                <button class="copy-btn" onclick="copyToClipboard('uuid-value')">复制</button>
+            </div>
+            <div class="info-item">
+                <span class="info-label">API地址:</span>
+                <span class="info-value" id="api-url"></span>
+                <button class="copy-btn" onclick="copyToClipboard('api-url')">复制</button>
+            </div>
         </div>
     </div>
 
-    <div class="button-group">
-        <button class="generate-btn" onclick="generateCaptcha()">
-            <span id="generate-text">🔄 生成验证码</span>
-        </button>
-        <button class="reset-btn" onclick="resetForm()">🔄 重置参数</button>
-    </div>
+    <!-- 登录Tab -->
+    <div id="login-tab" class="tab-content">
+        <div class="description">
+            使用生成的验证码完成登录认证
+        </div>
 
-    <div class="captcha-container">
-        <div id="captcha-placeholder">
-            <p style="color: #999;">验证码将在这里显示</p>
-        </div>
-        <img id="captcha-image" class="captcha-image" style="display: none;">
-    </div>
+        <div class="login-form">
+            <div class="form-row">
+                <label for="username">用户名</label>
+                <input type="text" id="username" placeholder="请输入用户名" value="zxs">
+            </div>
 
-    <div class="info-panel" id="info-panel" style="display: none;">
-        <h3 style="margin-bottom: 15px; color: #0056b3;">📋 验证码信息</h3>
-        <div class="info-item">
-            <span class="info-label">UUID:</span>
-            <span class="info-value" id="uuid-value"></span>
-            <button class="copy-btn" onclick="copyToClipboard('uuid-value')">复制</button>
+            <div class="form-row">
+                <label for="password">密码</label>
+                <input type="password" id="password" placeholder="请输入密码" value="Alpine">
+            </div>
+
+            <div class="form-row">
+                <label for="departmentId">部门ID</label>
+                <input type="text" id="departmentId" placeholder="请输入部门ID" value="1">
+            </div>
+
+            <div class="form-row">
+                <label for="applicationName">应用名称</label>
+                <select id="applicationName">
+                    <option value="hdu-vboard" selected>hdu-vboard</option>
+                    <option value="hdu-willow">hdu-willow</option>
+                    <option value="hdu-forest">hdu-forest</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label>验证码</label>
+                <div class="verification-row">
+                    <input type="text" id="verificationCodeKey" placeholder="验证码UUID" readonly>
+                    <input type="text" id="verificationCodeValue" placeholder="计算结果">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="login-btn" onclick="login()">
+                    <span id="login-text">🔑 登录</span>
+                </button>
+                <button class="reset-btn" onclick="resetLoginForm()">清空表单</button>
+            </div>
         </div>
-        <div class="info-item">
-            <span class="info-label">API地址:</span>
-            <span class="info-value" id="api-url"></span>
-            <button class="copy-btn" onclick="copyToClipboard('api-url')">复制</button>
-        </div>
-        <div class="info-item">
-            <span class="info-label">使用说明:</span>
-            <span class="info-value">请计算图片中的数学题，在登录时使用上面的UUID和计算结果</span>
+
+        <div id="login-result" style="display: none;" class="token-display">
+            <h3>✅ 登录成功！</h3>
+            <div class="info-item">
+                <span class="info-label">Token:</span>
+                <span class="info-value" id="token-value"></span>
+                <button class="copy-btn" onclick="copyToClipboard('token-value')">复制</button>
+            </div>
         </div>
     </div>
 
@@ -272,13 +425,30 @@
 
 <script>
     const API_BASE = 'http://127.0.0.1:9000/sso/auth';
+    let currentUuid = '';
+
+    function switchTab(tabName) {
+        // 更新tab样式
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // 显示对应内容
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(tabName + '-tab').classList.add('active');
+
+        // 清空状态消息
+        document.getElementById('status-message').innerHTML = '';
+    }
 
     async function generateCaptcha() {
         const generateBtn = document.querySelector('.generate-btn');
         const generateText = document.getElementById('generate-text');
         const statusMessage = document.getElementById('status-message');
 
-        // 显示加载状态
         generateText.innerHTML = '<div class="loading"></div>生成中...';
         generateBtn.disabled = true;
         statusMessage.innerHTML = '';
@@ -303,14 +473,12 @@
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // 获取UUID
             const uuid = response.headers.get('uuid');
+            currentUuid = uuid;
 
-            // 将图片数据转换为Blob URL
             const blob = await response.blob();
             const imageUrl = URL.createObjectURL(blob);
 
-            // 显示图片
             const captchaImage = document.getElementById('captcha-image');
             const captchaPlaceholder = document.getElementById('captcha-placeholder');
             const infoPanel = document.getElementById('info-panel');
@@ -320,23 +488,82 @@
             captchaPlaceholder.style.display = 'none';
             infoPanel.style.display = 'block';
 
-            // 显示信息
             document.getElementById('uuid-value').textContent = uuid;
             document.getElementById('api-url').textContent = `${API_BASE}/generate-verification-code`;
 
-            showStatus('✅ 验证码生成成功！', 'success');
+            // 自动填充登录表单的UUID
+            document.getElementById('verificationCodeKey').value = uuid;
+
+            showStatus('✅ 验证码生成成功！已自动填充到登录表单', 'success');
 
         } catch (error) {
             console.error('Error:', error);
             showStatus(`❌ 生成失败: ${error.message}`, 'error');
         } finally {
-            // 恢复按钮状态
             generateText.textContent = '🔄 生成验证码';
             generateBtn.disabled = false;
         }
     }
 
-    function resetForm() {
+    async function login() {
+        const loginBtn = document.querySelector('.login-btn');
+        const loginText = document.getElementById('login-text');
+        const statusMessage = document.getElementById('status-message');
+
+        loginText.innerHTML = '<div class="loading"></div>登录中...';
+        loginBtn.disabled = true;
+        statusMessage.innerHTML = '';
+
+        try {
+            const loginData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                departmentId: document.getElementById('departmentId').value,
+                applicationName: document.getElementById('applicationName').value,
+                verificationCodeKey: document.getElementById('verificationCodeKey').value,
+                verificationCodeValue: document.getElementById('verificationCodeValue').value
+            };
+
+            // 验证表单
+            if (!loginData.verificationCodeKey || !loginData.verificationCodeValue) {
+                throw new Error('请先生成验证码并计算结果');
+            }
+
+            const response = await fetch(`${API_BASE}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(loginData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.code === 0) {
+                // 显示登录结果
+                const loginResult = document.getElementById('login-result');
+                const tokenValue = document.getElementById('token-value');
+
+                // 尝试从不同位置获取token
+                const token = result.data?.token || result.data || result.token;
+                tokenValue.textContent = token || '无token返回';
+
+                loginResult.style.display = 'block';
+                showStatus('✅ 登录成功！', 'success');
+            } else {
+                throw new Error(result.msg || '登录失败');
+            }
+
+        } catch (error) {
+            console.error('Login error:', error);
+            showStatus(`❌ 登录失败: ${error.message}`, 'error');
+        } finally {
+            loginText.textContent = '🔑 登录';
+            loginBtn.disabled = false;
+        }
+    }
+
+    function resetCaptchaForm() {
         document.getElementById('width').value = 200;
         document.getElementById('height').value = 50;
         document.getElementById('thickness').value = 4;
@@ -350,18 +577,29 @@
         captchaPlaceholder.style.display = 'block';
         infoPanel.style.display = 'none';
 
-        document.getElementById('status-message').innerHTML = '';
+        document.getElementById('verificationCodeKey').value = '';
+        document.getElementById('verificationCodeValue').value = '';
+        currentUuid = '';
+    }
+
+    function resetLoginForm() {
+        document.getElementById('username').value = 'zxs';
+        document.getElementById('password').value = 'Alpine';
+        document.getElementById('departmentId').value = '1';
+        document.getElementById('applicationName').value = 'hdu-vboard';
+        document.getElementById('verificationCodeKey').value = currentUuid || '';
+        document.getElementById('verificationCodeValue').value = '';
+        document.getElementById('login-result').style.display = 'none';
     }
 
     function showStatus(message, type) {
         const statusElement = document.getElementById('status-message');
         statusElement.innerHTML = `<div class="status ${type}">${message}</div>`;
 
-        // 3秒后自动清除成功消息
         if (type === 'success') {
             setTimeout(() => {
                 statusElement.innerHTML = '';
-            }, 3000);
+            }, 5000);
         }
     }
 
@@ -371,22 +609,35 @@
 
         navigator.clipboard.writeText(text).then(() => {
             const originalText = element.textContent;
-            element.textContent = '已复制到剪贴板！';
+            element.textContent = '✓ 已复制';
 
             setTimeout(() => {
                 element.textContent = originalText;
             }, 2000);
         }).catch(err => {
             console.error('复制失败:', err);
+            alert('复制失败，请手动复制');
         });
     }
 
-    // 按Enter键也可以触发生成
+    // 按Enter键触发生成或登录
     document.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
-            generateCaptcha();
+            const activeTab = document.querySelector('.tab-content.active').id;
+            if (activeTab === 'captcha-tab') {
+                generateCaptcha();
+            } else if (activeTab === 'login-tab') {
+                login();
+            }
         }
     });
+
+    // 自动填充上次生成的UUID（如果有）
+    window.onload = function() {
+        if (currentUuid) {
+            document.getElementById('verificationCodeKey').value = currentUuid;
+        }
+    };
 </script>
 </body>
 </html>
