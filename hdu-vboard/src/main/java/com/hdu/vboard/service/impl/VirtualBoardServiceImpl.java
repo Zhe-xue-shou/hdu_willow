@@ -2,7 +2,6 @@ package com.hdu.vboard.service.impl;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONObject;
 import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.hdufpga.util.TimeUtil;
@@ -19,10 +18,8 @@ import com.hdu.vboard.util.VbSysFileUtil;
 import com.hdu.vboard.util.VirtualBoardUtil;
 import com.hdu.svccmn.service.UserStatisticService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -62,8 +59,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
   @Value("${verilator.path}")
   private String verilatorPath;
-  @Autowired
-  private ConversionService conversionService;
 
   @Override
   public JSONObject getWorkerStatus() {
@@ -71,9 +66,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     // 用来装所有 worker 状态的数组
     List<JSONObject> stateList = new ArrayList<>();
 
-    simulationWorkers.forEach((vid, worker) -> {
+    simulationWorkers.forEach((token, worker) -> {
       JSONObject item = new JSONObject();
-      item.set("token", vid);
+      item.set("token", token);
       item.set("state", worker.getState());
       stateList.add(item);
     });
@@ -175,6 +170,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       }
       throw new MakeWorkbenchException(errMsg.toString());
     }
+
+    applicationEventPublisher.publishEvent(new WorkerStateEvent(this, WorkerStatesEventType.BUILD, token, null));
     redisUtil.set(VbRedisConstant.REDIS_VB_TTL_PREFIX + token, true, VbRedisConstant.REDIS_VB_TTL_LIMIT, TimeUnit.SECONDS);
 
     return true;
@@ -220,7 +217,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     VbConnectionVO vbConnectionVO = createVbConnextionVO(token);
     log.debug("vbConnectionVO:{}", vbConnectionVO);
-    simulationWorkers.put(vbConnectionVO.getVid(), simulationWorkerBO);
+    simulationWorkers.put(token, simulationWorkerBO);
 
     redisUtil.set(VbRedisConstant.REDIS_VB_CONN_PREFIX + token, vbConnectionVO, 12, TimeUnit.HOURS);
     redisUtil.set(
@@ -230,32 +227,23 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         TimeUnit.SECONDS
     );
 
-//    log.debug("{} -> workerBO", vbConnectionVO.getVid());
+    log.debug("{} -> workerBO", token);
     final JSONObject finalJsonObj = getSignalFromVirtualBoard(token);
-    JSONObject firstState = updateState(token, finalJsonObj);
-    log.debug("first state:{}", firstState);
-
-
-//    Object a = redisUtil.get(VbRedisConstant.REDIS_VB_CONN_PREFIX);
-//    log.debug("raw object:{}", a);
-//    VbConnectionVO vbConnectionVO1 = Convert.convert(VbConnectionVO.class, a);
-//    log.debug("after convert:{}", vbConnectionVO1);
 
     return finalJsonObj;
   }
 
   // update and broadcast
-  private JSONObject updateState(String token, JSONObject jsonObj) throws Exception {
+  private JSONObject updateState(String token, JSONObject jsonObj) {
     if (jsonObj != null && jsonObj.getJSONObject("data") != null) {
       log.debug("final json:{}", jsonObj);
       log.debug("final json[data]:{}", jsonObj.getJSONObject("data"));
       JSONObject state = jsonObj.getJSONObject("data");
       log.debug("token:{}", token);
-      String Vid = getVid(token);
       SimulationWorkerBO targetWorker;
-      if ((targetWorker = simulationWorkers.get(Vid)) != null) {
+      if ((targetWorker = simulationWorkers.get(token)) != null) {
         targetWorker.setState(state); // 更新map中的worker状态
-        applicationEventPublisher.publishEvent(new WorkerStateChangedEvent(this, token, state));
+        applicationEventPublisher.publishEvent(new WorkerStateEvent(this, WorkerStatesEventType.CHANGED, token, state));
         return state;
       }
     }
@@ -268,8 +256,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       throw new Exception("Connection time out! Workspace has been cleared!");
     }
     log.debug("token:{}", token);
-    String vid = getVid(token);
-    SimulationWorkerBO simulationWorkerBO = simulationWorkers.get(vid);
+    SimulationWorkerBO simulationWorkerBO = simulationWorkers.get(token);
     if (simulationWorkerBO == null) {
       throw new MakeWorkbenchException("simulation workbench does not exist");
     }
@@ -282,8 +269,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
   @Override
   public JSONObject getSignalFromVirtualBoard(String token) throws Exception {
     log.debug("token:{}", token);
-    String vid = getVid(token);
-    SimulationWorkerBO simulationWorkerBO = simulationWorkers.get(vid);
+    SimulationWorkerBO simulationWorkerBO = simulationWorkers.get(token);
     if (simulationWorkerBO == null) {
       throw new MakeWorkbenchException("simulation workbench does not exist");
     }
@@ -299,7 +285,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     redisUtil.del(VbRedisConstant.REDIS_VB_TTL_PREFIX + token);
     VbConnectionVO vbConnectionVO = Convert.convert(VbConnectionVO.class, redisUtil.get(VbRedisConstant.REDIS_VB_CONN_PREFIX + token));
     clearWorkbench(token);
-    SimulationWorkerBO simulationWorkerBO = simulationWorkers.remove(vbConnectionVO.getVid());
+    SimulationWorkerBO simulationWorkerBO = simulationWorkers.remove(token);
     if (simulationWorkerBO == null) {
       throw new MakeWorkbenchException("simulation process:" + token + " does not exist");
     }
@@ -341,15 +327,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     vbConnectionVO.setUserName(info[0]);
     vbConnectionVO.setDepartmentName(info[1]);
     vbConnectionVO.setBuildTime(TimeUtil.getNowTime());
-    vbConnectionVO.setVid(IdUtil.simpleUUID());
     return vbConnectionVO;
-  }
-
-  private String getVid(String token) throws Exception {
-    VbConnectionVO vbConnectionVO = Convert.convert(VbConnectionVO.class, redisUtil.get(VbRedisConstant.REDIS_VB_CONN_PREFIX + token));
-    if (vbConnectionVO == null) {
-      throw new Exception("VbConnectionVO is not existed!");
-    }
-    return vbConnectionVO.getVid();
   }
 }

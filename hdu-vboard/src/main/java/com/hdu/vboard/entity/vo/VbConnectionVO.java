@@ -18,9 +18,6 @@ public class VbConnectionVO {
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
   private Date buildTime;
 
-  // 虚拟板卡唯一标识 与token分离
-  private String vid;
-
 //  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 //  private Date updateTime;
 }
