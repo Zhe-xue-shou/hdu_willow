@@ -19,7 +19,9 @@ public class SaTokenConfigure implements WebMvcConfigurer {
       SaRouter
           .match("/**")    // 拦截的 path 列表，可以写多个 */
           .notMatch("/auth/**")        // 排除掉的 path 列表，可以写多个
+          .notMatch("/**/index.html")
           .check(r -> StpUtil.checkLogin());        // 要执行的校验动作，可以写完整的 lambda 表达式
+
       // 根据路由划分模块，不同模块不同鉴权，记得具体路径优先配，通配符往后配置
       // >=3
       SaRouter.match("/user/delete", "/user/update",
@@ -27,6 +29,7 @@ public class SaTokenConfigure implements WebMvcConfigurer {
               "/class/listPage", "/class/get")
           .check(r -> StpUtil.checkRole(RoleEnum.ADMIN.getRoleId()));
       // >=1
+
       SaRouter.match("/chapter/recordFinish", "/chapter/getChapterRecordByUserId",
               "/paper/getAllPaperByClassId", "/paper/handInPaper", "/paper/getHandInInfoByUserId", "/paper/updateHandInInfo",
               "/problem/getProblems", "/problem/checkAnswer",
@@ -39,14 +42,17 @@ public class SaTokenConfigure implements WebMvcConfigurer {
       SaRouter.match("/cb/**",
               "/file/**",
               "/token/**",
-              "/waiting/**")
+              "/waiting/**",
+              "/vb/**")
           .check(r -> StpUtil.checkRoleOr(RoleEnum.STUDENT.getRoleId(), RoleEnum.TEACHER.getRoleId(), RoleEnum.ADMIN.getRoleId()));
+
       // >=2
       SaRouter.match("/user/**",
               "/class/**",
               "/testRecord/**",
               "/studentStudyRecord/**")
           .check(r -> StpUtil.checkRoleOr(RoleEnum.TEACHER.getRoleId(), RoleEnum.ADMIN.getRoleId()));
+
       // >=3
       SaRouter.match("/role/**",
               "/department/**",

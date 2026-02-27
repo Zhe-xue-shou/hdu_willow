@@ -1,16 +1,15 @@
 ## todolist
-1. 完善api文档 明白每个模块的功能
-2. vboard部分的数据库
-3. token逻辑拆分
-4. 测试模块
-5. session和token？
-6. 可以再做一个步骤记录（不支持回溯）
-7. redis vb token过期时间被更改了(3*60 -> 1*30) 记得改回去
+1. redis vb token过期时间被更改了(3*60 -> 1*30) 记得改回去
+2. satoken和业务逻辑的redis分离实现
+3. listPage遇到的check问题 sa-token-alone
+4. 目前只有account有role查询 实际上每个包都要有 可能需要rpc调用 目前遇到循环引用问题
+5. 后端权限管理的返回值需要更友好
+6. 也许需要更改一下DepartmentId的逻辑 有Id不能获取到DepartmentName
 
 ## fixlist
-1. 登录接口是/auth/login 前端写的是/user/account/login
-2. 登录时要先调用/generate-verification-code生成验证码
-3. login需要的参数为LoginRO 逻辑不合理 需要拆分相关逻辑？
+1. 前端部分接口需要改
+2. login需要的参数为LoginRO 逻辑不合理 需要拆分相关逻辑？
+3. 前端需要有Department的查询
 
 ## note
 - hdu-account 负责单独信息的增删改查 主要包括Department(班级) Role(权限) user(用户)
