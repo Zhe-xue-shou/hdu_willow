@@ -1,6 +1,6 @@
 ## todolist
 1. redis vb token过期时间被更改了(3*60 -> 1*30) 记得改回去
-2. satoken和业务逻辑的redis分离实现
+2. satoken和业务逻辑的redis分离实现 /已完成
 3. listPage遇到的check问题 sa-token-alone
 4. 目前只有account有role查询 实际上每个包都要有 可能需要rpc调用 目前遇到循环引用问题
 5. 后端权限管理的返回值需要更友好
