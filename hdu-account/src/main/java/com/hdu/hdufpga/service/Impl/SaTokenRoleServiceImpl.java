@@ -9,6 +9,7 @@ import com.hdu.hdufpga.entity.constant.SysConstant;
 import com.hdu.hdufpga.entity.po.UserPO;
 import com.hdu.hdufpga.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -16,9 +17,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+@Lazy
 @Component
 @Slf4j
-public class SaTokenImpl implements StpInterface {
+public class SaTokenRoleServiceImpl implements StpInterface {
 
   @Resource
   private UserService userService;
