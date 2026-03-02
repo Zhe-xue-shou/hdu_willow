@@ -3,6 +3,7 @@ package com.hdu.hdufpga.config;
 import cn.dev33.satoken.exception.SaTokenException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hdu.hdufpga.entity.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -11,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@Slf4j
 @Component
 public class CustomExceptionResolver implements HandlerExceptionResolver {
 
@@ -24,6 +26,8 @@ public class CustomExceptionResolver implements HandlerExceptionResolver {
       @NonNull Exception e) {
 
     Result result;
+
+    log.error("{}:{}", e.getClass(), e.getMessage());
 
     // ===== SaToken异常处理 =====
     if (e instanceof SaTokenException) {

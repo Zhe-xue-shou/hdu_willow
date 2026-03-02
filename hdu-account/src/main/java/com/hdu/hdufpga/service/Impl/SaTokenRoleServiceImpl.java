@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.hdu.hdufpga.entity.constant.SysConstant;
 import com.hdu.hdufpga.entity.po.UserPO;
 import com.hdu.hdufpga.service.UserService;
+import com.hdu.hdufpga.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,9 @@ import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+import static com.hdu.hdufpga.entity.constant.SaTokenConstant.LoginIdRolePrefix;
 
 @Lazy
 @Component
@@ -24,6 +28,9 @@ public class SaTokenRoleServiceImpl implements StpInterface {
 
   @Resource
   private UserService userService;
+
+  @Resource
+  private RedisUtil redisUtil;
 
   /**
    * 获取权限集合
@@ -47,7 +54,7 @@ public class SaTokenRoleServiceImpl implements StpInterface {
    */
   @Override
   public List<String> getRoleList(Object loginId, String loginType) {
-    List<String> roleList = (List<String>) SaManager.getSaTokenDao().getObject("satoken:loginId-find-role:" + loginId);
+    List<String> roleList = (List<String>) redisUtil.get(LoginIdRolePrefix + loginId);
     if (roleList == null) {
       log.info("获取角色列表");
       if (StrUtil.isBlankIfStr(loginId)) {
@@ -69,7 +76,7 @@ public class SaTokenRoleServiceImpl implements StpInterface {
       }
       roleList = Lists.newArrayList(String.valueOf(userPO.getUserRoleId()));
       // 使用SaManager缓存
-      SaManager.getSaTokenDao().setObject("satoken:loginId-find-role:" + loginId, roleList, 60 * 60 * 24);
+      redisUtil.set(LoginIdRolePrefix + loginId, roleList, 1, TimeUnit.HOURS);
     }
     return roleList;
   }
