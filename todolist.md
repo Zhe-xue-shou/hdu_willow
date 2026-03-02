@@ -2,10 +2,10 @@
 
 1. redis vb token过期时间被更改了(3*60 -> 1*30) 记得改回去
 2. satoken和业务逻辑的redis分离实现 /已完成
-3. listPage遇到的check问题 sa-token-alone
+3. listPage遇到的check问题 sa-token-alone`
 4. 目前只有account有role查询 实际上每个包都要有 可能需要rpc调用 目前遇到循环引用问题 /已完成 在hdu-svc-cmn使用rpc调用
    并在hdu-account加入了本地版本 实现得不好但没找到更更好的实现
-5. 后端权限管理的返回值需要更友好
+5. 后端权限管理的返回值需要更友好 /已完成 实现了ExceptionResolver全局异常处理 将结果反馈到前端
 6. 也许需要更改一下DepartmentId的逻辑 有Id不能获取到DepartmentName
 
 ## fixlist
