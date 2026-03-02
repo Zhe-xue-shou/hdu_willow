@@ -45,6 +45,8 @@ public class CustomExceptionResolver implements HandlerExceptionResolver {
         result = Result.error("Token无效");
       } else if (ex.getCode() == 11051) {
         result = Result.error("缺少指定权限");
+      } else if (ex.getCode() == 11041) {
+        result = Result.error("权限不足！");
       } else {
         result = Result.error("服务器繁忙，请稍后重试(SaToken错误码:" + ex.getCode() + ")");
       }
