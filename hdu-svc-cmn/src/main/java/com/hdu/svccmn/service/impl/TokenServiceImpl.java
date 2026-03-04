@@ -1,5 +1,6 @@
 package com.hdu.svccmn.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.IdUtil;
 import com.hdu.hdufpga.entity.constant.RedisConstant;
@@ -23,7 +24,8 @@ abstract public class TokenServiceImpl<T> implements TokenService<T> {
   UserStatisticService userStatisticService;
 
   @Override
-  public String generateToken(UserVO userVO) throws Exception {
+  public String generateToken() throws Exception {
+    UserVO userVO = (UserVO) StpUtil.getSession().get("user");
     if (!ParamUtil.CheckUserInfoLegal(userVO)) {
       throw new IdentifyException("身份信息有误");
     }// 检查传递的userVO参数是否为空

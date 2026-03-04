@@ -13,6 +13,7 @@ import com.hdu.hdufpga.entity.constant.SysConstant;
 import com.hdu.hdufpga.entity.po.UserPO;
 import com.hdu.hdufpga.entity.ro.LoginRO;
 import com.hdu.hdufpga.entity.ro.VerificationCodeRO;
+import com.hdu.hdufpga.entity.vo.UserVO;
 import com.hdu.hdufpga.exception.AccountVerifyException;
 import com.hdu.hdufpga.exception.VerificationCodeException;
 import com.hdu.hdufpga.util.RedisUtil;
@@ -26,6 +27,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import static com.hdu.hdufpga.entity.constant.SaTokenConstant.LoginIdRolePrefix;
 
 @Service
 @Slf4j
@@ -146,6 +149,10 @@ public class AuthService {
 
     StpUtil.login(loginId);
 
+    UserVO userVO = userService.UserPO2UserVO(userPO);
+    // 存在内存里？如果需要多服务器 需要存redis
+    StpUtil.getSession().set("user", userVO);
+
     log.info("{} 登录成功", loginId);
 
     return buildLoginResult(loginId);
@@ -170,6 +177,7 @@ public class AuthService {
     }
     log.info("log out! info: {}", StpUtil.getTokenInfo());
     StpUtil.logout();
+    redisUtil.del(LoginIdRolePrefix + StpUtil.getLoginId());
     return Result.ok();
   }
 

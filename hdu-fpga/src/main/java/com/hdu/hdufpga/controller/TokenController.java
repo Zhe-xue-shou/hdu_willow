@@ -22,9 +22,9 @@ public class TokenController {
 
     //level >= 1
     @GetMapping("/generateToken")
-    public Result generateToken(UserVO userVO) {
+    public Result generateToken() {
         try {
-            return Result.ok(cbTokenService.generateToken(userVO));
+            return Result.ok(cbTokenService.generateToken());
         } catch (Exception e) {
             log.error(e.getMessage());
             return Result.error(e.getMessage());
