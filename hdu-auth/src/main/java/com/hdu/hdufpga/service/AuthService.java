@@ -150,7 +150,8 @@ public class AuthService {
     StpUtil.login(loginId);
 
     UserVO userVO = userService.UserPO2UserVO(userPO);
-    // 存在内存里？如果需要多服务器 需要存redis
+    // 该方法会自动写入到Redis的satoken:session字段中
+    // 后续的get方法也会自动从redis中读取 redis数据库由alone配置
     StpUtil.getSession().set("user", userVO);
 
     log.info("{} 登录成功", loginId);
@@ -177,7 +178,6 @@ public class AuthService {
     }
     log.info("log out! info: {}", StpUtil.getTokenInfo());
     StpUtil.logout();
-    redisUtil.del(LoginIdRolePrefix + StpUtil.getLoginId());
     return Result.ok();
   }
 

@@ -72,6 +72,9 @@ spring:
         namespace: cea83c1b-7a99-4bb1-8596-895a4faab520
   config:
     import: optional:nacos:${spring.application.name}  # 关键配置
+  redis:
+    host: localhost
+    database: 1
 
 dubbo:
   application:

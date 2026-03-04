@@ -54,7 +54,7 @@ public class SaTokenRoleServiceImpl implements StpInterface {
    */
   @Override
   public List<String> getRoleList(Object loginId, String loginType) {
-    List<String> roleList = (List<String>) redisUtil.get(LoginIdRolePrefix + loginId);
+    List<String> roleList = (List<String>) SaManager.getSaTokenDao().getObject(LoginIdRolePrefix + loginId);
     if (roleList == null) {
       log.info("获取角色列表");
       if (StrUtil.isBlankIfStr(loginId)) {
@@ -76,7 +76,7 @@ public class SaTokenRoleServiceImpl implements StpInterface {
       }
       roleList = Lists.newArrayList(String.valueOf(userPO.getUserRoleId()));
       // 使用SaManager缓存
-      redisUtil.set(LoginIdRolePrefix + loginId, roleList, 1, TimeUnit.HOURS);
+      SaManager.getSaTokenDao().setObject(LoginIdRolePrefix + loginId, roleList, 24 * 60 * 60);
     }
     return roleList;
   }

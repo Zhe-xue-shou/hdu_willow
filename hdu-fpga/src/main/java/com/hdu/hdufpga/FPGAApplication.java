@@ -1,5 +1,6 @@
 package com.hdu.hdufpga;
 
+import com.hdu.svccmn.service.impl.SaTokenRoleServiceImpl;
 import com.hdu.svccmn.service.impl.UserStatisticServiceImpl;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.boot.SpringApplication;
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableAsync
 @EnableDubbo
-@Import(UserStatisticServiceImpl.class)
+@Import({UserStatisticServiceImpl.class, SaTokenRoleServiceImpl.class})
 public class FPGAApplication {
 
   public static void main(String[] args) {
