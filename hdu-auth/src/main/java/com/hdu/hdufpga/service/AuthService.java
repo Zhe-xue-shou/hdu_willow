@@ -8,6 +8,7 @@ import cn.hutool.core.math.Calculator;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
+import com.hdu.hdufpga.entity.Result;
 import com.hdu.hdufpga.entity.constant.SysConstant;
 import com.hdu.hdufpga.entity.po.UserPO;
 import com.hdu.hdufpga.entity.ro.LoginRO;
@@ -163,18 +164,13 @@ public class AuthService {
     return result;
   }
 
-  /**
-   * 退出登录
-   *
-   * @param username 用户名
-   */
-  public void logout(String username) {
-    StpUtil.logout(username);
-    for (AbstractSsoService service : ssoService.getAllServices()) {
-      if (Objects.nonNull(service)) {
-        service.logout(username);
-      }
+  public Result logout() {
+    if (!StpUtil.isLogin()) {
+      return Result.error("未登录");
     }
+    log.info("log out! info: {}", StpUtil.getTokenInfo());
+    StpUtil.logout();
+    return Result.ok();
   }
 
   /**
@@ -184,16 +180,16 @@ public class AuthService {
    * @param applicationName 子系统名称
    * @return 若登录返回子系统Session信息
    */
-  public Object isLogin(String username, String applicationName) {
-    if (StpUtil.isLogin(username)) {
-      AbstractSsoService service = ssoService.getSsoService(applicationName);
-      if (Objects.isNull(service)) {
-        return null;
-      }
-      return service.login(username);
-    }
-    return null;
-  }
+//  public Object isLogin(String username, String applicationName) {
+//    if (StpUtil.isLogin(username)) {
+//      AbstractSsoService service = ssoService.getSsoService(applicationName);
+//      if (Objects.isNull(service)) {
+//        return null;
+//      }
+//      return service.login(username);
+//    }
+//    return null;
+//  }
 
   /**
    * 生成四则运算验证码

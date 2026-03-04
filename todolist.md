@@ -7,6 +7,7 @@
    并在hdu-account加入了本地版本 实现得不好但没找到更更好的实现
 5. 后端权限管理的返回值需要更友好 /已完成 实现了ExceptionResolver全局异常处理 将结果反馈到前端
 6. 也许需要更改一下DepartmentId的逻辑 有Id不能获取到DepartmentName
+7. 拆分redis数据库 不同的业务使用不同的数据库存储
 
 ## fixlist
 

@@ -15,29 +15,28 @@ import java.io.IOException;
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Resource
-    private AuthService authService;
+  @Resource
+  private AuthService authService;
 
-    @PostMapping("/login")
-    public Result login(@RequestBody LoginRO loginRO) {
-        try {
-            return Result.ok(authService.login(loginRO));
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return Result.error(e.getMessage());
-        }
+  @PostMapping("/login")
+  public Result login(@RequestBody LoginRO loginRO) {
+    try {
+      return Result.ok(authService.login(loginRO));
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      return Result.error(e.getMessage());
     }
+  }
 
-    @GetMapping("/logout")
-    public Result logout(String username) {
-        authService.logout(username);
-        return Result.ok();
-    }
+  @GetMapping("/logout")
+  public Result logout() {
+    return authService.logout();
+  }
 
-    @PostMapping("/generate-verification-code")
-    public Result generateVerificationCode(@RequestBody VerificationCodeRO verificationCodeRO) throws IOException {
-        authService.generateVerificationCode(verificationCodeRO);
-        return Result.ok();
-    }
+  @PostMapping("/generate-verification-code")
+  public Result generateVerificationCode(@RequestBody VerificationCodeRO verificationCodeRO) throws IOException {
+    authService.generateVerificationCode(verificationCodeRO);
+    return Result.ok();
+  }
 
 }
