@@ -7,7 +7,7 @@ import cn.hutool.captcha.generator.MathGenerator;
 import cn.hutool.core.math.Calculator;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
+import cn.hutool.crypto.SecureUtil;
 import com.hdu.hdufpga.entity.Result;
 import com.hdu.hdufpga.entity.constant.SysConstant;
 import com.hdu.hdufpga.entity.po.UserPO;
@@ -25,10 +25,7 @@ import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import static com.hdu.hdufpga.entity.constant.SaTokenConstant.LoginIdRolePrefix;
 
 @Service
 @Slf4j
@@ -121,27 +118,29 @@ public class AuthService {
 
     String loginId = username + SysConstant.DASH + departmentId;
 
-    if (StpUtil.isLogin()) {
+    if (StpUtil.isLogin(loginId)) {
       log.info("{} 已登录", loginId);
-      return buildLoginResult(loginId);
+    } else {
+
+      Object code = redisUtil.get(verificationCodeKey);
+      redisUtil.del(verificationCodeKey);
+
+      if (code == null) {
+        throw new VerificationCodeException("验证码已过期，请重新生成");
+      }
+      if (!StrUtil.equals(String.valueOf(code), verificationCodeValue)) {
+        throw new VerificationCodeException("验证码错误");
+      }
+
+      log.debug("验证码校验通过");
     }
-
-    Object code = redisUtil.get(verificationCodeKey);
-    redisUtil.del(verificationCodeKey);
-
-    if (code == null || !StrUtil.equals(String.valueOf(code), verificationCodeValue)) {
-      throw new VerificationCodeException("验证码错误");
-    }
-
-    log.debug("验证码校验通过");
-
     UserPO userPO = userService.getUserByUserName(username, departmentId);
 
     if (userPO == null) {
       throw new AccountVerifyException("用户不存在");
     }
 
-    if (!StrUtil.equals(password, userPO.getPassword())) {
+    if (!StrUtil.equals(SecureUtil.md5(password), userPO.getPassword())) {
       throw new AccountVerifyException("用户名或密码错误");
     }
 
@@ -156,20 +155,7 @@ public class AuthService {
 
     log.info("{} 登录成功", loginId);
 
-    return buildLoginResult(loginId);
-  }
-
-
-  /**
-   * 构造登录返回信息
-   */
-  private JSONObject buildLoginResult(String loginId) {
-    JSONObject result = new JSONObject();
-    result.set("loginId", loginId);
-    result.set("tokenName", StpUtil.getTokenName());
-    result.set("tokenValue", StpUtil.getTokenValue());
-    result.set("isLogin", true);
-    return result;
+    return StpUtil.getTokenInfo();
   }
 
   public Result logout() {

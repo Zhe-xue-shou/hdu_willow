@@ -14,7 +14,7 @@ spring:
         - id: hdu-auth
           uri: lb://hdu-auth
           predicates:
-            - Path=/auth/**
+            - Path=/sso/**
           filters:
             - StripPrefix=1
         - id: hdu-interrupt

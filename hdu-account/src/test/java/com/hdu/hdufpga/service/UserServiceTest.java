@@ -19,18 +19,18 @@ public class UserServiceTest {
     @Test
     void testUserServiceAdd() {
         UserPO userPO = new UserPO();
-        userPO.setUsername("testUsernameService");
-        userPO.setPassword("testPassword");
-        userPO.setRealName("测试用户2");
+        userPO.setUsername("zxs");
+        userPO.setPassword("Alpine");
+        userPO.setRealName("哲学受");
         userPO.setUserRoleId(3);
-        userPO.setUserDepartmentId(4);
+        userPO.setUserDepartmentId(1);
         userService.save(userPO);
     }
 
     @Test
     void testUserServiceUpdate() {
         UserPO userPO = new UserPO();
-        userPO.setId(508);
+        userPO.setId(3);
         userPO.setUsername("testUsernameService1");
         userPO.setPassword("testPassword123");
         userPO.setRealName("测试用户2");
