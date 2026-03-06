@@ -12,6 +12,7 @@ import com.hdu.hdufpga.mapper.UserMapper;
 import com.hdu.hdufpga.service.UserService;
 import com.hdu.hdufpga.util.TimeUtil;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -130,7 +131,11 @@ public class UserServiceImpl extends MPJBaseServiceImpl<UserMapper, UserPO> impl
     userPO.setRealName(uid);
     userPO.setUserDepartmentId(-1);
     userPO.setUserRoleId(1);
-    save(userPO);
+    try {
+      save(userPO);
+    } catch (DuplicateKeyException e) {
+      log.error(e.getMessage());
+    }
     return UserPO2UserVO(userPO);
   }
 }
