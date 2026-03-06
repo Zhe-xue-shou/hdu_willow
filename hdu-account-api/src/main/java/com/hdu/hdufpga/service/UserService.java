@@ -9,11 +9,13 @@ import java.util.List;
 
 
 public interface UserService extends MPJBaseService<UserPO> {
-    List<Integer> getIdByUserName(List<String> poList, Integer departmentId);
+  List<Integer> getIdByUserName(List<String> poList, Integer departmentId);
 
-    Long getUserCountByDate(Date startDate, Date endDate);
+  Long getUserCountByDate(Date startDate, Date endDate);
 
-    UserPO getUserByUserName(String userName, Integer departmentId);
+  UserPO getUserByUserName(String userName, Integer departmentId);
 
-    UserVO UserPO2UserVO(UserPO userPO);
+  UserVO UserPO2UserVO(UserPO userPO);
+
+  UserVO createThirdUser(String uid, String source);
 }

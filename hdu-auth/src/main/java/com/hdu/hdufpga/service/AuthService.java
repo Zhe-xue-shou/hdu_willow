@@ -17,6 +17,7 @@ import com.hdu.hdufpga.entity.vo.UserVO;
 import com.hdu.hdufpga.exception.AccountVerifyException;
 import com.hdu.hdufpga.exception.VerificationCodeException;
 import com.hdu.hdufpga.util.RedisUtil;
+import com.hdu.hdufpga.util.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
@@ -204,5 +205,34 @@ public class AuthService {
     ServletOutputStream out = response.getOutputStream();
     shearCaptcha.write(out);
     out.close();
+  }
+
+  public Object thirdLogin(String uid, Long timestamp, String source, String sign) {
+    // 1 时间校验（防止重放攻击）
+    long now = TimeUtil.getNowTime().getTime() / 1000;
+
+    if (Math.abs(now - timestamp) > 30) {
+      return Result.error("request expired");
+    }
+
+    // 2 生成签名
+    String secret = "secret_114514";
+
+    String checkSign = SecureUtil.md5(uid + timestamp + source + secret);
+
+    if (!checkSign.equals(sign)) {
+      return Result.error("invalid sign");
+    }
+
+    UserVO userVO = userService.createThirdUser(uid, source);
+
+    // 3 创建 SaToken 登录
+    StpUtil.login(uid);
+
+    // 该方法会自动写入到Redis的satoken:session字段中
+    // 后续的get方法也会自动从redis中读取 redis数据库由alone配置
+    StpUtil.getSession().set("user", userVO);
+
+    return StpUtil.getTokenInfo();
   }
 }

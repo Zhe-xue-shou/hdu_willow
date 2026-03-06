@@ -121,4 +121,16 @@ public class UserServiceImpl extends MPJBaseServiceImpl<UserMapper, UserPO> impl
 
     return vo;
   }
+
+  @Override
+  public UserVO createThirdUser(String uid, String source) {
+    UserPO userPO = new UserPO();
+    userPO.setUsername("third part:" + uid);
+    userPO.setPassword("114514");
+    userPO.setRealName(uid);
+    userPO.setUserDepartmentId(-1);
+    userPO.setUserRoleId(1);
+    save(userPO);
+    return UserPO2UserVO(userPO);
+  }
 }

@@ -39,4 +39,16 @@ public class AuthController {
     return Result.ok();
   }
 
+  @GetMapping("third_login")
+  public Result thirdLogin(@RequestParam String uid,
+                           @RequestParam Long timestamp,
+                           @RequestParam String source,
+                           @RequestParam String sign) {
+    try {
+      return Result.ok(authService.thirdLogin(uid, timestamp, source, sign));
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      return Result.error(e.getMessage());
+    }
+  }
 }
