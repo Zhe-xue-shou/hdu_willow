@@ -118,22 +118,17 @@ public class AuthService {
 
     String loginId = username + SysConstant.DASH + departmentId;
 
-    if (StpUtil.isLogin(loginId)) {
-      log.info("{} 已登录", loginId);
-    } else {
+    Object code = redisUtil.get(verificationCodeKey);
+    redisUtil.del(verificationCodeKey);
 
-      Object code = redisUtil.get(verificationCodeKey);
-      redisUtil.del(verificationCodeKey);
-
-      if (code == null) {
-        throw new VerificationCodeException("验证码已过期，请重新生成");
-      }
-      if (!StrUtil.equals(String.valueOf(code), verificationCodeValue)) {
-        throw new VerificationCodeException("验证码错误");
-      }
-
-      log.debug("验证码校验通过");
+    if (code == null) {
+      throw new VerificationCodeException("验证码已过期，请重新生成");
     }
+    if (!StrUtil.equals(String.valueOf(code), verificationCodeValue)) {
+      throw new VerificationCodeException("验证码错误");
+    }
+
+    log.debug("验证码校验通过");
     UserPO userPO = userService.getUserByUserName(username, departmentId);
 
     if (userPO == null) {
