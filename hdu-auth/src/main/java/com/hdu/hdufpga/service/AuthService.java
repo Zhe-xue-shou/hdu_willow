@@ -8,6 +8,9 @@ import cn.hutool.core.math.Calculator;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.jwt.JWT;
+import cn.hutool.jwt.JWTUtil;
 import com.hdu.hdufpga.entity.Result;
 import com.hdu.hdufpga.entity.constant.SysConstant;
 import com.hdu.hdufpga.entity.po.UserPO;
@@ -200,37 +203,53 @@ public class AuthService {
     String code = shearCaptcha.getCode();
     Integer result = (int) Calculator.conversion(code);
     // 存放到缓存中
-    redisUtil.set(uuid, result, 1, TimeUnit.MINUTES);
+    redisUtil.set("verificationCode:" + uuid, result, 1, TimeUnit.MINUTES);
     // 渲染到前端
     ServletOutputStream out = response.getOutputStream();
     shearCaptcha.write(out);
     out.close();
   }
 
-  public Object thirdLogin(String uid, Long timestamp, String source, String sign) {
-    // 1 时间校验（防止重放攻击）
-    long now = TimeUtil.getNowTime().getTime() / 1000;
+  public Object thirdLogin(String token) {
 
-    if (Math.abs(now - timestamp) > 30) {
-      return Result.error("request expired");
-    }
-
-    // 2 生成签名
     String secret = "secret_114514";
 
-    String checkSign = SecureUtil.md5(uid + timestamp + source + secret);
-
-    if (!checkSign.equals(sign)) {
-      return Result.error("invalid sign");
+    // 1 验证 token
+    if (!JWTUtil.verify(token, secret.getBytes())) {
+      return Result.error("invalid token");
     }
 
+    // 2 解析 JWT
+    JWT jwt = JWTUtil.parseToken(token);
+
+    JSONObject payload = jwt.getPayloads();
+
+    String nonce = payload.getStr("nonce");
+
+    if (redisUtil.hasKey("nonce:" + nonce)) {
+      return Result.error("replay attack");
+    }
+
+    redisUtil.set("nonce:" + nonce, 1, 60, TimeUnit.SECONDS);
+
+    String uid = payload.getStr("uid");
+    String source = payload.getStr("source");
+    Long exp = payload.getLong("exp");
+
+    long now = System.currentTimeMillis() / 1000;
+
+    // 3 检查过期
+    if (exp == null || exp < now) {
+      return Result.error("token expired");
+    }
+
+    // 4 创建用户
     UserVO userVO = userService.createThirdUser(uid, source);
 
-    // 3 创建 SaToken 登录
+    // 5 SaToken 登录
     StpUtil.login(uid);
 
-    // 该方法会自动写入到Redis的satoken:session字段中
-    // 后续的get方法也会自动从redis中读取 redis数据库由alone配置
+    // 6 写 session
     StpUtil.getSession().set("user", userVO);
 
     return StpUtil.getTokenInfo();
