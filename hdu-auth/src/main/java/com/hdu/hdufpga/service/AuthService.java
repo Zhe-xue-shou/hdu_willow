@@ -238,9 +238,13 @@ public class AuthService {
 
     long now = System.currentTimeMillis() / 1000;
 
+    if (StrUtil.hasBlank(uid, source)) {
+      return Result.error("Jwt参数不完整！");
+    }
+
     // 3 检查过期
     if (exp == null || exp < now) {
-      return Result.error("token expired");
+      return Result.error("Jwt过期");
     }
 
     // 4 创建用户
