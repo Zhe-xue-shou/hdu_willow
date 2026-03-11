@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.listener.KeyExpirationEventMessageListener;
+import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -33,6 +34,11 @@ public class RedisKeyExpiredListener extends KeyExpirationEventMessageListener {
 
     @Value("${wait-queue.name}")
     String queueName;
+
+    // 只监听db0的键
+    protected void doRegister(RedisMessageListenerContainer listenerContainer) {
+        listenerContainer.addMessageListener(this, new PatternTopic("__keyevent@0__:expired"));
+    }
 
     public RedisKeyExpiredListener(RedisMessageListenerContainer listenerContainer) {
         super(listenerContainer);

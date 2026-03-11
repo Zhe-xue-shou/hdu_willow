@@ -8,7 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.listener.KeyExpirationEventMessageListener;
+import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.Topic;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,8 @@ import javax.annotation.Resource;
 @Slf4j
 @Import(RedisConfiguration.class)
 public class VbRedisKeyExpiredListener extends KeyExpirationEventMessageListener {
+  private static final Topic TOPIC_ALL_KEYEVENTS = new PatternTopic("__keyevent@1");
+
   @Resource
   private RedisUtil redisUtil;
 
@@ -27,6 +31,11 @@ public class VbRedisKeyExpiredListener extends KeyExpirationEventMessageListener
 
   public VbRedisKeyExpiredListener(RedisMessageListenerContainer listenerContainer) {
     super(listenerContainer);
+  }
+
+  // 只监听db1的键
+  protected void doRegister(RedisMessageListenerContainer listenerContainer) {
+    listenerContainer.addMessageListener(this, new PatternTopic("__keyevent@1__:expired"));
   }
 
   @Override
