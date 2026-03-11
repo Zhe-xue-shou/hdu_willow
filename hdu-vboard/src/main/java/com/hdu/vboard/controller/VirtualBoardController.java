@@ -1,13 +1,10 @@
 package com.hdu.vboard.controller;
 
-import com.hdu.hdufpga.annotation.CheckToken;
+import com.hdu.hdufpga.annotation.CheckAndRefreshToken;
 import com.hdu.hdufpga.entity.Result;
-import com.hdu.hdufpga.entity.vo.UserVO;
 import com.hdu.vboard.service.VbSysFileService;
-import com.hdu.vboard.service.VbTokenService;
 import com.hdu.vboard.service.VirtualBoardService;
 
-import com.hdu.svccmn.service.UserStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,11 +26,6 @@ public class VirtualBoardController /*extends BaseController<VirtualBoardService
   @Resource
   VbSysFileService vbSysFileService;
 
-  @Resource
-  private UserStatisticService userStatisticService;
-
-  @Resource
-  private VbTokenService vbTokenService;
 
 //    @Override
 //    @PostMapping("/listPage")
@@ -67,7 +59,7 @@ public class VirtualBoardController /*extends BaseController<VirtualBoardService
 //    }
 
   @PostMapping("/build")
-  @CheckToken
+  @CheckAndRefreshToken
   public Result build(@RequestParam("verilogFile") MultipartFile[] verilogFiles,
                       @RequestParam("bindFile") MultipartFile bindFile,
                       HttpServletRequest request) {
@@ -98,7 +90,7 @@ public class VirtualBoardController /*extends BaseController<VirtualBoardService
   }
 
   @PostMapping("/start")
-  @CheckToken
+  @CheckAndRefreshToken
   public Result start(HttpServletRequest request) {
     String token = request.getHeader("token");
     try {
@@ -119,7 +111,7 @@ public class VirtualBoardController /*extends BaseController<VirtualBoardService
   }
 
   @PostMapping("/signal")
-  @CheckToken
+  @CheckAndRefreshToken
   public Result signal(HttpServletRequest request, @RequestBody JSONObject signalJson) {
     String token = request.getHeader("token");
     try {
@@ -139,7 +131,7 @@ public class VirtualBoardController /*extends BaseController<VirtualBoardService
 
   //level >= 1
   @PostMapping("/finish")
-  @CheckToken
+  @CheckAndRefreshToken
   public Result finish(HttpServletRequest request) {
     String token = request.getHeader("token");
     try {

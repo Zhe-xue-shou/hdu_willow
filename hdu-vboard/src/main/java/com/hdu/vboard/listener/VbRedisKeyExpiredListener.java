@@ -3,7 +3,6 @@ package com.hdu.vboard.listener;
 import com.hdu.hdufpga.config.RedisConfiguration;
 import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.vboard.entity.constant.VbRedisConstant;
-import com.hdu.vboard.service.VbUseRecordService;
 import com.hdu.vboard.service.VirtualBoardService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
@@ -15,7 +14,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.sql.SQLException;
 
 @Component
 @Slf4j
@@ -26,9 +24,6 @@ public class VbRedisKeyExpiredListener extends KeyExpirationEventMessageListener
 
   @Resource
   private VirtualBoardService virtualBoardService;
-
-  @Resource
-  private VbUseRecordService vbUseRecordService;
 
   public VbRedisKeyExpiredListener(RedisMessageListenerContainer listenerContainer) {
     super(listenerContainer);
