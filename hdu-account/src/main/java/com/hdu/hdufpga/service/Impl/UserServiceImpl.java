@@ -4,6 +4,7 @@ import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import com.hdu.hdufpga.entity.constant.SysConstant;
 import com.hdu.hdufpga.entity.po.DepartmentPO;
 import com.hdu.hdufpga.entity.po.RolePO;
 import com.hdu.hdufpga.entity.po.UserPO;
@@ -126,15 +127,16 @@ public class UserServiceImpl extends MPJBaseServiceImpl<UserMapper, UserPO> impl
   @Override
   public UserVO createThirdUser(String uid, String source) {
     UserPO userPO = new UserPO();
-    userPO.setUsername("third part:" + uid);
+    userPO.setUsername("thirdPart-" + uid + SysConstant.DASH + source);
     userPO.setPassword("114514");
     userPO.setRealName(uid);
     userPO.setUserDepartmentId(-1);
     userPO.setUserRoleId(1);
+    userPO.setUserDepartmentName(source);
     try {
       save(userPO);
     } catch (DuplicateKeyException e) {
-      log.error(e.getMessage());
+      log.warn("重复创建第三方用户：" + e.getMessage());
     }
     return UserPO2UserVO(userPO);
   }
