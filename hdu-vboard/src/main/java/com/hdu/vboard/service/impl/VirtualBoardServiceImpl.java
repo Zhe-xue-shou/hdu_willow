@@ -143,7 +143,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       throw new CreateWorkbenchException(errMsg.toString());
     }
     log.info("create simulation workbench success for token:{}", token);
-    redisUtil.set(VbRedisConstant.REDIS_VB_TTL_PREFIX + token, true, VbRedisConstant.REDIS_VB_TTL_LIMIT, TimeUnit.SECONDS);
 
     return true;
   }
@@ -173,16 +172,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     }
 
     applicationEventPublisher.publishEvent(new WorkerStateEvent(this, WorkerStatesEventType.BUILD, token, null));
-    redisUtil.set(VbRedisConstant.REDIS_VB_TTL_PREFIX + token, true, VbRedisConstant.REDIS_VB_TTL_LIMIT, TimeUnit.SECONDS);
 
     return true;
   }
 
   @Override
   public JSONObject runWorkbench(String token) throws Exception {
-    if (!redisUtil.hasKey(VbRedisConstant.REDIS_VB_TTL_PREFIX + token)) {
-      throw new Exception("Connection time out! Workspace has been cleared!");
-    }
     ProcessBuilder runBuilder = new ProcessBuilder("make", "run");
     String workbenchPath = VbSysFileUtil.getFullWorkbenchPath(token);
     if (!FileUtil.exist(workbenchPath)) {
@@ -221,12 +216,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     simulationWorkers.put(token, simulationWorkerBO);
 
     redisUtil.set(VbRedisConstant.REDIS_VB_CONN_PREFIX + token, vbConnectionVO, 12, TimeUnit.HOURS);
-    redisUtil.set(
-        VbRedisConstant.REDIS_VB_TTL_PREFIX + token,
-        true,
-        VbRedisConstant.REDIS_VB_TTL_LIMIT,
-        TimeUnit.SECONDS
-    );
     redisUtil.set(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token, System.currentTimeMillis());
 
     log.debug("{} -> workerBO", token);
@@ -254,17 +243,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
   @Override
   public Boolean sendSignal(String token, String signal) throws Exception {
-    if (!redisUtil.hasKey(VbRedisConstant.REDIS_VB_TTL_PREFIX + token)) {
-      throw new Exception("Connection time out! Workspace has been cleared!");
-    }
     log.debug("token:{}", token);
     SimulationWorkerBO simulationWorkerBO = simulationWorkers.get(token);
     if (simulationWorkerBO == null) {
       throw new MakeWorkbenchException("simulation workbench does not exist");
     }
     VirtualBoardUtil.sendSignalToVirtualBoard(simulationWorkerBO.simInput, signal);
-    redisUtil.set(VbRedisConstant.REDIS_VB_TTL_PREFIX + token, true, VbRedisConstant.REDIS_VB_TTL_LIMIT, TimeUnit.SECONDS);
-
     return true;
   }
 
@@ -275,7 +259,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     if (simulationWorkerBO == null) {
       throw new MakeWorkbenchException("simulation workbench does not exist");
     }
-    redisUtil.set(VbRedisConstant.REDIS_VB_TTL_PREFIX + token, true, VbRedisConstant.REDIS_VB_TTL_LIMIT, TimeUnit.SECONDS);
     final JSONObject finalJsonObj = VirtualBoardUtil.getSignalFromVirtualBoard(simulationWorkerBO.simOutput);
     updateState(token, finalJsonObj);
     return finalJsonObj;
@@ -284,7 +267,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
   // 先清理文件，再停止线程，防止资源泄露
   @Override
   public Boolean stopWorkbench(String token, int status) throws Exception {
-    redisUtil.del(VbRedisConstant.REDIS_VB_TTL_PREFIX + token);
     VbConnectionVO vbConnectionVO = Convert.convert(VbConnectionVO.class, redisUtil.get(VbRedisConstant.REDIS_VB_CONN_PREFIX + token));
     clearWorkbench(token);
     SimulationWorkerBO simulationWorkerBO = simulationWorkers.remove(token);
@@ -297,12 +279,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       simulationWorkerBO.simulationProcess.destroy();
       log.info("simulation process:{} stopped!", token);
     }
-    String[] token_info = token.split("_");
-    if (token_info.length < 4) {
-      log.error("experience token invalid! token value:{}", token);
-    } else {
-      userStatisticService.updateUserExptime(token_info[0], Integer.parseInt(token_info[2]), (Long) redisUtil.get(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token));
-    }
+    userStatisticService.updateUserExptimeByToken(token);
     redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
     redisUtil.del(VbRedisConstant.REDIS_VB_CONN_PREFIX + token);
     log.debug("vb_connection of token: {} in redis has successfully deleted!", token);

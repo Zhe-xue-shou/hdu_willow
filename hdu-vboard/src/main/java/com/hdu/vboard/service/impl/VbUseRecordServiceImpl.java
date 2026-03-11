@@ -7,10 +7,12 @@ import com.hdu.vboard.entity.vo.VbConnectionVO;
 import com.hdu.vboard.mapper.VbUseRecordMapper;
 import com.hdu.vboard.service.VbUseRecordService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class VbUseRecordServiceImpl extends MPJBaseServiceImpl<VbUseRecordMapper, VbUseRecordPO> implements VbUseRecordService {
   @Override
+  @Transactional
   public Boolean saveVbRecord(VbConnectionVO vbConnectionVO, int status) {
     VbUseRecordPO vbUseRecordPO = new VbUseRecordPO();
     vbUseRecordPO.setUserName(vbConnectionVO.getUserName());

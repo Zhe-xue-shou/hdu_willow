@@ -176,12 +176,7 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
       throw new CircuitBoardException("释放板卡失败");
     }
 
-    String[] token_info = token.split("_");
-    if (token_info.length < 4) {
-      log.error("experience token invalid! token value:{}", token);
-    } else {
-      userStatisticService.updateUserExptime(token_info[0], Integer.parseInt(token_info[2]), (Long) redisUtil.get(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token));
-    }
+    userStatisticService.updateUserExptimeByToken(token);
     redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
 
     redisUtil.del(RedisConstant.REDIS_CONN_PREFIX + token, RedisConstant.REDIS_TTL_PREFIX + token,

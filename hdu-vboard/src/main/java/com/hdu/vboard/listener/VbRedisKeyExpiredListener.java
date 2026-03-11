@@ -1,6 +1,7 @@
 package com.hdu.vboard.listener;
 
 import com.hdu.hdufpga.config.RedisConfiguration;
+import com.hdu.hdufpga.entity.constant.RedisConstant;
 import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.vboard.entity.constant.VbRedisConstant;
 import com.hdu.vboard.service.VirtualBoardService;
@@ -46,7 +47,7 @@ public class VbRedisKeyExpiredListener extends KeyExpirationEventMessageListener
       log.debug("expiredKey:{}", expiredKey);
       String[] split = expiredKey.split(":");
       String token = split[1];
-      if (VbRedisConstant.REDIS_VB_TTL_PREFIX.contains(split[0])) {
+      if (RedisConstant.REDIS_TTL_PREFIX.contains(split[0])) {
         log.debug("key: {} 过期,清理工作区!", token);
         freeVirtualBoard(token);
       }
