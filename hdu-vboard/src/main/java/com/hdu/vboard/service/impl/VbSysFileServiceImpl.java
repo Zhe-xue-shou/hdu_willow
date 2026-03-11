@@ -17,7 +17,7 @@ import java.io.IOException;
 public class VbSysFileServiceImpl implements VbSysFileService {
   public void clearWorkbenchFile(HttpServletRequest request) {
     String token = request.getHeader("token");
-    String folderPath = VbSysFileUtil.getFullSavePath(token);
+    String folderPath = VbSysFileUtil.getFullSavePath(VbSysFileUtil.transToken2Path(token));
 
     File folder = new File(folderPath);
     if (folder.exists() && folder.isDirectory()) {
@@ -42,7 +42,7 @@ public class VbSysFileServiceImpl implements VbSysFileService {
     // 进行文件名校验，确认上传的是后缀为v的文件
     if (originalFileName.matches(verilogPattern)) {
       String token = request.getHeader("token");
-      String filePath = VbSysFileUtil.getFullSavePath(token) + "/" + originalFileName;
+      String filePath = VbSysFileUtil.getFullSavePath(VbSysFileUtil.transToken2Path(token)) + "/" + originalFileName;
       VbSysFileUtil.saveFile(verilogFile, filePath);
       log.debug("Verilog file {} saved to {} successfully!", originalFileName, filePath);
       return filePath;
@@ -60,7 +60,7 @@ public class VbSysFileServiceImpl implements VbSysFileService {
     // 进行文件名校验，确认上传的是后缀为v的文件
     if (originalFileName.matches(verilogPattern)) {
       String token = request.getHeader("token");
-      String filePath = VbSysFileUtil.getFullSavePath(token) + "/" + originalFileName;
+      String filePath = VbSysFileUtil.getFullSavePath(VbSysFileUtil.transToken2Path(token)) + "/" + originalFileName;
       VbSysFileUtil.saveFile(bindFile, filePath);
       log.debug("Bind json saved to {} successfully!", filePath);
       return filePath;

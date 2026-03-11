@@ -33,7 +33,7 @@ public class VbSysFileUtil {
       String absoluteTempPath = split[0];
       if (absoluteTempPath.contains("target/")) {
         return FileUtil.getAbsolutePath(absoluteTempPath + "../");
-      }else{
+      } else {
         return FileUtil.getAbsolutePath(absoluteTempPath);
       }
     }
@@ -54,7 +54,7 @@ public class VbSysFileUtil {
   // |__save      // namespace下保存top.v和bind.json
   // |__workbench // namespace下保存工作区
   public static String getSavePath(String dirName) {
-    String basePath = getRootBasePath()+getVbBasePath();
+    String basePath = getRootBasePath() + getVbBasePath();
     if (Objects.equals(dirName, "")) {
       basePath += "save";
     } else {
@@ -68,7 +68,7 @@ public class VbSysFileUtil {
   }
 
   public static String getWorkbenchPath(String dirName) {
-    String basePath = getRootBasePath()+getVbBasePath();
+    String basePath = getRootBasePath() + getVbBasePath();
     if (Objects.equals(dirName, "")) {
       basePath += "workbench";
     } else {
@@ -101,5 +101,12 @@ public class VbSysFileUtil {
       }
     }
     FileUtil.del(directory);
+  }
+
+  public static String transToken2Path(String token) {
+    String[] token_info = token.split("_");
+    String departmentName = token_info[1];
+    String userName = token_info[0];
+    return departmentName + "/" + userName;
   }
 }
