@@ -7,19 +7,16 @@ import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.hdu.hdufpga.entity.constant.SysConstant;
 import com.hdu.hdufpga.entity.po.UserPO;
+import com.hdu.hdufpga.entity.vo.UserVO;
 import com.hdu.hdufpga.service.UserService;
-import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.svccmn.service.SaTokenRoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import static com.hdu.hdufpga.entity.constant.SaTokenConstant.LoginIdRolePrefix;
 
@@ -30,9 +27,6 @@ public class SaTokenRoleServiceImpl implements SaTokenRoleService {
 
   @DubboReference(check = false, init = false)
   private UserService userService;
-
-  @Resource
-  RedisUtil redisUtil;
 
   /**
    * 获取权限集合
@@ -56,6 +50,10 @@ public class SaTokenRoleServiceImpl implements SaTokenRoleService {
    */
   @Override
   public List<String> getRoleList(Object loginId, String loginType) {
+    UserVO userVO = (UserVO) StpUtil.getSession().get("user");
+    if (userVO != null) {
+      return Lists.newArrayList(String.valueOf(userVO.getUserRoleId()));
+    }
     List<String> roleList = (List<String>) SaManager.getSaTokenDao().getObject(LoginIdRolePrefix + loginId);
     if (roleList == null) {
       log.info("获取角色列表");
