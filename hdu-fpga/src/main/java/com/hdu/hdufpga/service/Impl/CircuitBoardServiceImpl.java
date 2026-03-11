@@ -11,7 +11,6 @@ import com.hdu.hdufpga.entity.constant.CircuitBoardConstant;
 import com.hdu.hdufpga.entity.constant.RedisConstant;
 import com.hdu.hdufpga.entity.po.CircuitBoardPO;
 import com.hdu.hdufpga.entity.vo.UserConnectionVO;
-import com.hdu.hdufpga.entity.vo.UserVO;
 import com.hdu.hdufpga.exception.CircuitBoardException;
 import com.hdu.hdufpga.mapper.CircuitBoardMapper;
 import com.hdu.hdufpga.netty.NettySocketHolder;
@@ -177,7 +176,12 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
       throw new CircuitBoardException("释放板卡失败");
     }
 
-    userStatisticService.updateUserExptime(token, (Long) redisUtil.get(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token));
+    String[] token_info = token.split("_");
+    if (token_info.length < 4) {
+      log.error("experience token invalid! token value:{}", token);
+    } else {
+      userStatisticService.updateUserExptime(token_info[0], Integer.parseInt(token_info[2]), (Long) redisUtil.get(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token));
+    }
     redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
 
     redisUtil.del(RedisConstant.REDIS_CONN_PREFIX + token, RedisConstant.REDIS_TTL_PREFIX + token,

@@ -3,6 +3,7 @@ package com.hdu.vboard.service.impl;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONObject;
+import com.hdu.hdufpga.entity.constant.RedisConstant;
 import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.hdufpga.util.TimeUtil;
 import com.hdu.vboard.entity.bo.SimulationWorkerBO;
@@ -226,6 +227,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         VbRedisConstant.REDIS_VB_TTL_LIMIT,
         TimeUnit.SECONDS
     );
+    redisUtil.set(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token, System.currentTimeMillis());
 
     log.debug("{} -> workerBO", token);
     final JSONObject finalJsonObj = getSignalFromVirtualBoard(token);
@@ -295,6 +297,13 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       simulationWorkerBO.simulationProcess.destroy();
       log.info("simulation process:{} stopped!", token);
     }
+    String[] token_info = token.split("_");
+    if (token_info.length < 4) {
+      log.error("experience token invalid! token value:{}", token);
+    } else {
+      userStatisticService.updateUserExptime(token_info[0], Integer.parseInt(token_info[2]), (Long) redisUtil.get(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token));
+    }
+    redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
     redisUtil.del(VbRedisConstant.REDIS_VB_CONN_PREFIX + token);
     log.debug("vb_connection of token: {} in redis has successfully deleted!", token);
     if (!vbUseRecordService.saveVbRecord(vbConnectionVO, status)) {

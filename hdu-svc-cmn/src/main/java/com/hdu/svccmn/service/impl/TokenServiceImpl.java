@@ -20,20 +20,16 @@ abstract public class TokenServiceImpl<T> implements TokenService<T> {
   @Resource
   RedisUtil redisUtil;
 
-  @Resource
-  UserStatisticService userStatisticService;
-
   @Override
   public String generateToken() throws Exception {
     UserVO userVO = (UserVO) StpUtil.getSession().get("user");
     if (!ParamUtil.CheckUserInfoLegal(userVO)) {
       throw new IdentifyException("身份信息有误");
     }// 检查传递的userVO参数是否为空
-    String salt = IdUtil.simpleUUID(); // 随机生成一个uuid
+    String salt = IdUtil.nanoId(); // 随机生成一个uuid
     String token = ParamUtil.generateUserToken(userVO, salt); //生成token
     redisUtil.set(RedisConstant.REDIS_TTL_PREFIX + token, true, RedisConstant.REDIS_TTL_LIMIT, TimeUnit.SECONDS);
-    redisUtil.set(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token, System.currentTimeMillis(), RedisConstant.REDIS_TTL_LIMIT, TimeUnit.SECONDS);
-    userStatisticService.storeUserByToken(token, userVO);
+//    redisUtil.set(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token, System.currentTimeMillis(), RedisConstant.REDIS_TTL_LIMIT, TimeUnit.SECONDS);
     return token;
   }
 
