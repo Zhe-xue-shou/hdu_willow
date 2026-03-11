@@ -1,6 +1,7 @@
 package com.hdu.hdufpga.entity.constant;
 
 public class RedisConstant {
+    public final static String REDIS_VERIFICATION_CODE = "verificationCode:";
     //保持连接 身份->true
     public final static String REDIS_TTL_PREFIX = "ttl:";
     public final static Integer REDIS_TTL_LIMIT = 3 * 60; //connection must be checked within 3 minutes

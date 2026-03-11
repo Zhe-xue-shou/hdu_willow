@@ -12,6 +12,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTUtil;
 import com.hdu.hdufpga.entity.Result;
+import com.hdu.hdufpga.entity.constant.RedisConstant;
 import com.hdu.hdufpga.entity.constant.SysConstant;
 import com.hdu.hdufpga.entity.po.UserPO;
 import com.hdu.hdufpga.entity.ro.LoginRO;
@@ -20,7 +21,6 @@ import com.hdu.hdufpga.entity.vo.UserVO;
 import com.hdu.hdufpga.exception.AccountVerifyException;
 import com.hdu.hdufpga.exception.VerificationCodeException;
 import com.hdu.hdufpga.util.RedisUtil;
-import com.hdu.hdufpga.util.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
@@ -122,8 +122,8 @@ public class AuthService {
 
     String loginId = username + SysConstant.DASH + departmentId;
 
-    Object code = redisUtil.get(verificationCodeKey);
-    redisUtil.del(verificationCodeKey);
+    Object code = redisUtil.get(RedisConstant.REDIS_VERIFICATION_CODE + verificationCodeKey);
+    redisUtil.del(RedisConstant.REDIS_VERIFICATION_CODE + verificationCodeKey);
 
     if (code == null) {
       throw new VerificationCodeException("验证码已过期，请重新生成");
@@ -203,7 +203,7 @@ public class AuthService {
     String code = shearCaptcha.getCode();
     Integer result = (int) Calculator.conversion(code);
     // 存放到缓存中
-    redisUtil.set("verificationCode:" + uuid, result, 1, TimeUnit.MINUTES);
+    redisUtil.set(RedisConstant.REDIS_VERIFICATION_CODE + uuid, result, 1, TimeUnit.MINUTES);
     // 渲染到前端
     ServletOutputStream out = response.getOutputStream();
     shearCaptcha.write(out);
@@ -251,7 +251,7 @@ public class AuthService {
     UserVO userVO = userService.createThirdUser(uid, source);
 
     // 5 SaToken 登录
-    StpUtil.login(uid);
+    StpUtil.login(uid + SysConstant.DASH + source);
 
     // 6 写 session
     StpUtil.getSession().set("user", userVO);
