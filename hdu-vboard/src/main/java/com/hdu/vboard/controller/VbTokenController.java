@@ -24,7 +24,9 @@ public class VbTokenController {
   @GetMapping("/generateToken")
   public Result generateToken() {
     try {
-      return Result.ok(vbTokenService.generateToken());
+      String token = vbTokenService.generateToken();
+      log.debug("GerateToken:{}", token);
+      return Result.ok(token);
     } catch (Exception e) {
       log.error(e.getMessage());
       return Result.error(e.getMessage());
@@ -37,6 +39,7 @@ public class VbTokenController {
   public Result reload(HttpServletRequest request) {
     try {
       String token = request.getHeader("token");
+      log.debug("reload token: {}", token);
       return Result.ok(vbTokenService.reload(token));
     } catch (Exception e) {
       log.error(e.getMessage());
@@ -50,6 +53,7 @@ public class VbTokenController {
   public Result checkToken(HttpServletRequest request) {
     try {
       String token = request.getHeader("token");
+      log.debug("check token: {}", token);
       return Result.ok(vbTokenService.checkToken(token));
     } catch (Exception e) {
       log.error(e.getMessage());

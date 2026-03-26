@@ -23,10 +23,6 @@ public class UserStatisticServiceImpl implements UserStatisticService {
   @Resource
   private RedisUtil redisUtil;
 
-  // 666,要这样子写,Jvav无敌了
-  @Autowired
-  private UserStatisticService self;
-
   @Override
   @Transactional
   public void updateUserExptime(String username, Integer departmentId, Long sTime) throws Exception {
@@ -75,7 +71,7 @@ public class UserStatisticServiceImpl implements UserStatisticService {
       Long startTime =
           (Long) redisUtil.get(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
 
-      self.updateUserExptime(username, departmentId, startTime);
+      updateUserExptime(username, departmentId, startTime);
     } catch (Exception e) {
       log.error("无法更新实验时间，出现错误:{}", e.toString());
     }

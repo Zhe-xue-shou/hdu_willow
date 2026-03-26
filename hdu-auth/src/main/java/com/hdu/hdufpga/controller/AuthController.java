@@ -1,5 +1,7 @@
 package com.hdu.hdufpga.controller;
 
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONObject;
 import com.hdu.hdufpga.entity.Result;
 import com.hdu.hdufpga.entity.ro.LoginRO;
 import com.hdu.hdufpga.entity.ro.VerificationCodeRO;
@@ -40,8 +42,9 @@ public class AuthController {
   }
 
   @PostMapping("third_login")
-  public Result thirdLogin(@RequestBody String jwtToken) {
+  public Result thirdLogin(@RequestBody JSONObject body) {
     try {
+      String jwtToken = body.get("jwtToken").toString();
       return Result.ok(authService.thirdLogin(jwtToken));
     } catch (Exception e) {
       log.error(e.getMessage());
