@@ -11,6 +11,12 @@ spring:
             - Path=/account/**
           filters:
             - StripPrefix=1
+        - id: hdu-auth
+          uri: lb://hdu-auth
+          predicates:
+            - Path=/sso/**
+          filters:
+            - StripPrefix=1
         - id: hdu-interrupt
           uri: lb://hdu-interrupt
           predicates:

@@ -13,11 +13,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @RefreshScope
 public class RedisIPConfig {
 
-    @Value("${redis.host}")
-    private String redisHost;
-
-    @Value("${redis.port}")
-    private int redisPort;
+//    @Value("${redis.host}")
+//    private String redisHost;
+//
+//    @Value("${redis.port}")
+//    private int redisPort;
 
 //    @Bean
 //    public LettuceConnectionFactory redisConnectionFactory() {

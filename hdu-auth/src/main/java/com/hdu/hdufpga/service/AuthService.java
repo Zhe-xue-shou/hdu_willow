@@ -41,8 +41,8 @@ public class AuthService {
   @Resource
   private RedisUtil redisUtil;
 
-  @Resource
-  private SsoService ssoService;
+//  @Resource
+//  private SsoService ssoService;
 
   @Resource
   private HttpServletResponse response;

@@ -80,7 +80,6 @@ public class UserServiceImpl extends MPJBaseServiceImpl<UserMapper, UserPO> impl
     return userMapper.selectJoinOne(UserPO.class, wrapper);
   }
 
-  @Override
   public UserVO UserPO2UserVO(UserPO userPO) {
     if (userPO == null) {
       return null;
@@ -124,7 +123,6 @@ public class UserServiceImpl extends MPJBaseServiceImpl<UserMapper, UserPO> impl
     return vo;
   }
 
-  @Override
   public UserVO createThirdUser(String uid, String source) {
     UserPO userPO = new UserPO();
     userPO.setUsername("thirdPart-" + uid + SysConstant.DASH + source);
