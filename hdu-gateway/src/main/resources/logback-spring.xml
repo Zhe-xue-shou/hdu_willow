@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <property name="APP_NAME" value="hdu-gateway"/>
+
     <!-- ==================== 生产环境配置 ==================== -->
     <springProfile name="prod">
         <property name="LOG_PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%thread] %logger{36} - %msg%n"/>
-        <property name="APP_NAME" value="hdu-vboard"/>
-        <property name="LOG_PATH" value="./logs"/>
+        <property name="LOG_PATH" value="/docker-data/logs/hdu-gateway"/>
 
-        <!-- 控制台日志：只打印 ERROR -->
+        <!-- 控制台日志：只打印 INFO 及以上 -->
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
                 <level>ERROR</level>
@@ -18,9 +19,12 @@
             </encoder>
         </appender>
 
-        <!-- 文件日志，按天滚动 -->
+        <!-- 文件日志，按天滚动，只记录 INFO 及以上 -->
         <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${LOG_PATH}/${APP_NAME}.log</file>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
                 <!-- 每天生成一个新日志文件 -->
                 <fileNamePattern>${LOG_PATH}/${APP_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -32,46 +36,38 @@
                 <charset>UTF-8</charset>
             </encoder>
         </appender>
-
         <!-- 自己包INFO及以上 -->
-        <logger name="com.hdu.vboard" level="INFO" additivity="false">
-            <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE"/>
-        </logger>
-        <!-- hdufpga包INFO及以上 -->
         <logger name="com.hdu.hdufpga" level="INFO" additivity="false">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </logger>
-        <!-- 其他包只显示ERROR -->
-        <root level="ERROR">
+        <!-- 其他包只显示WARN -->
+        <root level="WARN">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </root>
     </springProfile>
 
-<!--==================== 开发环境配置 ====================-->
+    <!-- ==================== 开发环境配置 ==================== -->
     <springProfile name="dev">
-        <property name="APP_NAME" value="hdu-vboard"/>
-        <property name="LOG_PATH" value="./hdu-vboard/logs"/>
+        <property name="LOG_PATH" value="./hdu-gateway/logs"/>
         <property name="LOG_PATTERN"
                   value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] %cyan(%logger{36}) - %msg%n"/>
 
-        <!-- 控制台日志-->
+        <!--控制台-->
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
+                <!-- 开发环境使用更简洁的格式，带颜色 -->
                 <pattern>${LOG_PATTERN}</pattern>
                 <charset>UTF-8</charset>
             </encoder>
         </appender>
 
-        <!-- 文件日志：保存 DEBUG 以上级别，按天滚动 -->
+        <!--文件日志-->
         <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${LOG_PATH}/${APP_NAME}.log</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <!-- 每天生成一个新日志文件 -->
                 <fileNamePattern>${LOG_PATH}/${APP_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
-                <!-- 保留 1 天 -->
                 <maxHistory>1</maxHistory>
             </rollingPolicy>
             <encoder>
@@ -81,12 +77,34 @@
         </appender>
 
         <!-- 自己包全部输出 -->
-        <logger name="com.hdu.vboard" level="DEBUG" additivity="false">
+        <logger name="com.hdu.hdufpga" level="DEBUG" additivity="false">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </logger>
 
-        <root level="WARN">
+        <!-- 其他包只输出INFO 便于调试 -->
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- ==================== 默认配置（当没有指定 profile 时使用） ==================== -->
+    <springProfile name="default">
+        <!-- 使用控制台输出，适合 IDE 运行 -->
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${LOG_PATTERN}</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+
+        <!-- 自己包输出 DEBUG 级别 -->
+        <logger name="com.hdu.vboard" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+
+        <root level="INFO">
             <appender-ref ref="CONSOLE"/>
         </root>
     </springProfile>
