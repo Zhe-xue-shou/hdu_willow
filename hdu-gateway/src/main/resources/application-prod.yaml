@@ -49,6 +49,7 @@ spring:
               - "http://127.0.0.1:8081"
               - "http://127.0.0.1:8082"
               - "http://127.0.0.1:8083"
+              - "http://115.29.215.12:8080"
             allow-credentials: true
             allowed-headers: "*"
             allowedMethods: #request methods
@@ -61,6 +62,8 @@ spring:
               - HEAD
               - CONNECT
               - TRACE
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
     nacos:
       discovery:
         server-addr: localhost:8848

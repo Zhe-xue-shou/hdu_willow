@@ -77,7 +77,7 @@
         </appender>
 
         <!-- 自己包全部输出 -->
-        <logger name="com.hdu.hdufpga" level="DEBUG" additivity="false">
+        <logger name="com.hdu" level="DEBUG" additivity="false">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </logger>
@@ -100,11 +100,11 @@
         </appender>
 
         <!-- 自己包输出 DEBUG 级别 -->
-        <logger name="com.hdu.vboard" level="DEBUG" additivity="false">
+        <logger name="com.hdu" level="DEBUG" additivity="false">
             <appender-ref ref="CONSOLE"/>
         </logger>
 
-        <root level="INFO">
+        <root level="DEBUG">
             <appender-ref ref="CONSOLE"/>
         </root>
     </springProfile>

@@ -24,7 +24,7 @@ public class CustomExceptionResolver implements HandlerExceptionResolver {
       @NonNull HttpServletResponse response,
       Object handler,
       @NonNull Exception e) {
-
+    log.error("error URL:{}", request.getRequestURI());
     Result result;
 
     log.error("{}:{}", e.getClass(), e.getMessage());

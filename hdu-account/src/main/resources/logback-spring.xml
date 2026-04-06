@@ -37,7 +37,7 @@
             </encoder>
         </appender>
         <!-- 自己包INFO及以上 -->
-        <logger name="com.hdu.hdufpga" level="INFO" additivity="false">
+        <logger name="com.hdu" level="INFO" additivity="false">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </logger>
@@ -77,13 +77,12 @@
         </appender>
 
         <!-- 自己包全部输出 -->
-        <logger name="com.hdu.hdufpga" level="DEBUG" additivity="false">
+        <logger name="com.hdu" level="DEBUG" additivity="false">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </logger>
 
-        <!-- 其他包只输出INFO 便于调试 -->
-        <root level="INFO">
+        <root level="DEBUG">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </root>
@@ -100,11 +99,11 @@
         </appender>
 
         <!-- 自己包输出 DEBUG 级别 -->
-        <logger name="com.hdu.vboard" level="DEBUG" additivity="false">
+        <logger name="com.hdu" level="DEBUG" additivity="false">
             <appender-ref ref="CONSOLE"/>
         </logger>
 
-        <root level="INFO">
+        <root level="DEBUG">
             <appender-ref ref="CONSOLE"/>
         </root>
     </springProfile>

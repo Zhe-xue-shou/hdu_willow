@@ -43,7 +43,7 @@ seata:
       default: localhost:8091
 cors:
   allowed-origins:
-    "http://localhost:5173"
+    "TODO"
 
 sa-token:
   # Token名称
