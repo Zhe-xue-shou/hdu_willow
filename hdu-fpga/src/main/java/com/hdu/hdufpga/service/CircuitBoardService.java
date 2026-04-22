@@ -35,4 +35,6 @@ public interface CircuitBoardService extends MPJBaseService<CircuitBoardPO> {
     String getNixieTubeString(String token) throws CircuitBoardException;
 
     String getProcessedBtnStr(String token) throws CircuitBoardException;
+
+    String getNextLongId();
 }

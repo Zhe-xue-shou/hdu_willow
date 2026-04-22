@@ -158,7 +158,7 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
       NettySocketHolder.put(longId, info);
       log.info("instance: {}", NettySocketHolder.getInfo(longId));
       // 烧录板卡
-      CircuitBoardUtil.recordBitToCB(ctx, filePath, 0);
+      CircuitBoardUtil.recordBitToCB(ctx, filePath, longId, 0);
     }
   }
 
@@ -263,5 +263,24 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
     } else {
       throw new CircuitBoardException("按钮状态状态为空");
     }
+  }
+
+  @Override
+  public String getNextLongId() {
+    // 使用复合索引，直接按 long_id 降序取第一条
+    LambdaQueryWrapper<CircuitBoardPO> wrapper = new LambdaQueryWrapper<>();
+    wrapper.select(CircuitBoardPO::getLongId)
+        .isNotNull(CircuitBoardPO::getLongId)
+        .eq(CircuitBoardPO::getIsDeleted, 0)
+        .orderByDesc(CircuitBoardPO::getLongId)
+        .last("LIMIT 1");
+
+    CircuitBoardPO po = this.getOne(wrapper, false);
+    int maxId = 1000;
+    if (po != null && po.getLongId() != null) {
+      maxId = Integer.parseInt(po.getLongId());
+    }
+
+    return String.valueOf(maxId + 1);
   }
 }

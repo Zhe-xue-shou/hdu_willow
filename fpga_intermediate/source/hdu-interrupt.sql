@@ -15,7 +15,7 @@
 */
 
 CREATE DATABASE IF NOT EXISTS `hdu-interrupt` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE hdu-interrupt`;
+USE `hdu-interrupt`;
 
 SET NAMES utf8mb4;
 SET
@@ -103,6 +103,7 @@ CREATE TABLE `t_cb`
     `create_time` datetime                                DEFAULT NULL,
     `update_time` datetime                                DEFAULT NULL,
     `is_deleted`  tinyint                                 DEFAULT '0',
+    INDEX `idx_long_id` (`long_id`), -- 添加唯一索引
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
