@@ -37,6 +37,7 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
     String ip = (ctx.channel().remoteAddress().toString().split("/"))[1];
     if (msg.contains("ModuleLogin")) {
       processLoginReq(ctx, ip);
+      return;
     }
     String longId = msg.split("#")[1];
 //    if (msg.contains("Login")) {

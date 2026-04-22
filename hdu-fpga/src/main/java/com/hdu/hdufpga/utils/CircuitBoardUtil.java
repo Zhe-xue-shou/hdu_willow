@@ -99,6 +99,6 @@ public class CircuitBoardUtil {
     checksumBytes[1] = (byte) ((checkv >> 8) & 0xFF);   // 中间8位
     checksumBytes[2] = (byte) (checkv & 0xFF);          // 最低8位
     ctx.writeAndFlush(sendString + Arrays.toString(checksumBytes));
-    log.debug("send : {{{}}}", sendString + Arrays.toString(checksumBytes));
+    log.debug("send : {{}}", sendString + Arrays.toString(checksumBytes));
   }
 }
