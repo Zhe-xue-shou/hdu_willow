@@ -13,18 +13,18 @@ import javax.annotation.Resource;
 @Component
 @Qualifier("fpgaServerInitializer")
 public class FpgaNettyServerInitializer extends ChannelInitializer<SocketChannel> {
-    StringEncoder stringEncoder = new StringEncoder();
+  StringEncoder stringEncoder = new StringEncoder();
 
-    StringDecoder stringDecoder = new StringDecoder();
+  StringDecoder stringDecoder = new StringDecoder();
 
-    @Resource
-    FpgaNettyServerHandler fpgaNettyServerHandler;
+  @Resource
+  FpgaNettyServerHandler fpgaNettyServerHandler;
 
-    @Override
-    protected void initChannel(SocketChannel socketChannel) {
-        ChannelPipeline channelPipeline = socketChannel.pipeline();
-        channelPipeline.addLast("decoder", stringDecoder);
-        channelPipeline.addLast("handler", fpgaNettyServerHandler);
-        channelPipeline.addLast("encoder", stringEncoder);
-    }
+  @Override
+  protected void initChannel(SocketChannel socketChannel) {
+    ChannelPipeline channelPipeline = socketChannel.pipeline();
+    channelPipeline.addLast(stringDecoder);
+    channelPipeline.addLast(stringEncoder);
+    channelPipeline.addLast(fpgaNettyServerHandler);
+  }
 }
