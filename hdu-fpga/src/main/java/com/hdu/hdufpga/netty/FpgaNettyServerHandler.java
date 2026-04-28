@@ -39,7 +39,7 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
       processLoginReq(ctx, ip);
       return;
     }
-    String longId = msg.split("#")[1];
+    String longId = msg.split("#")[1].trim();
 //    if (msg.contains("Login")) {
 //      processLoginReq(ctx, ip, longId);
 //    }

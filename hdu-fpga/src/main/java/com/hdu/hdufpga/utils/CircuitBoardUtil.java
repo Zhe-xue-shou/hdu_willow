@@ -101,8 +101,8 @@ public class CircuitBoardUtil {
     sendToCbCtx(ctx, sendBytes);
   }
 
-  public static void sendEndToCB(ChannelHandlerContext ctx) {
-    String sendString = "NNN #FFFF #";
+  public static void sendEndToCB(ChannelHandlerContext ctx, String longId) {
+    String sendString = "NNN #" + longId + " #";
     byte[] sendBytes = sendString.getBytes();
     sendToCbCtx(ctx, sendBytes); // 结束上一次的控制
   }

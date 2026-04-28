@@ -84,8 +84,9 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
       List<CircuitBoardPO> circuitBoardPOList = baseMapper.selectList(wrapper);
       if (!circuitBoardPOList.isEmpty()) {
         circuitBoardPOList.forEach(e -> {
-          ChannelHandlerContext ctx = NettySocketHolder.getCtx(e.getLongId());
-          CircuitBoardUtil.sendEndToCB(ctx);
+          String longId = e.getLongId();
+          ChannelHandlerContext ctx = NettySocketHolder.getCtx(longId);
+          CircuitBoardUtil.sendEndToCB(ctx, longId);
           HashMap<String, Object> CBInfo = NettySocketHolder.getInfo(e.getLongId());
           if (Validator.isNull(CBInfo))
             CBInfo = new HashMap<>();
