@@ -58,7 +58,7 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
     if (msg.contains("NICE")) {
       processNICEReq();
     }
-    if (msg.contains("STAT")) {
+    if (msg.contains("STAT") || msg.contains("SIG")) {
       processSTATReq(ip, msg);
     }
 //        if(msg.contains("image")){
@@ -128,7 +128,7 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
   }
 
   private void processENDReq(String londId) {
-    redisUtil.set(RedisConstant.REDIS_BOARD_SERVER_PREFIX + londId, true, RedisConstant.REDIS_BOARD_SERVER_LIMIT, TimeUnit.SECONDS);
+//    redisUtil.set(RedisConstant.REDIS_BOARD_SERVER_PREFIX + londId, true, RedisConstant.REDIS_BOARD_SERVER_LIMIT, TimeUnit.SECONDS);
     NettySocketHolder.putValue(londId, CircuitBoardConstant.IS_RECORDED, true);
     log.info("已更新烧录状态！longId:{}", londId);
   }
@@ -142,7 +142,7 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
       longId = findNewLongIdFromDB();
     }
     log.info("为ip:{}的电路板分配longId:{}", ip, longId);
-    redisUtil.set(RedisConstant.REDIS_BOARD_SERVER_PREFIX + longId, true, RedisConstant.REDIS_BOARD_SERVER_LIMIT, TimeUnit.SECONDS);
+//    redisUtil.set(RedisConstant.REDIS_BOARD_SERVER_PREFIX + longId, true, RedisConstant.REDIS_BOARD_SERVER_LIMIT, TimeUnit.SECONDS);
     if (longId.matches(pattern) && longId.length() == 4) {
       insertNewCBToMap(ctx, longId, ip);
       insertNewCBToDB(longId, ip);
@@ -152,7 +152,7 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
   }
 
   private void processOKReq(ChannelHandlerContext ctx, String longId) {
-    redisUtil.set(RedisConstant.REDIS_BOARD_SERVER_PREFIX + longId, true, RedisConstant.REDIS_BOARD_SERVER_LIMIT, TimeUnit.SECONDS);
+//    redisUtil.set(RedisConstant.REDIS_BOARD_SERVER_PREFIX + longId, true, RedisConstant.REDIS_BOARD_SERVER_LIMIT, TimeUnit.SECONDS);
     HashMap<String, Object> info = NettySocketHolder.getInfo(longId);
     Integer count = (Integer) info.get(CircuitBoardConstant.COUNT);
     String filepath = (String) info.get(CircuitBoardConstant.FILE_PATH);
@@ -161,7 +161,7 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
   }
 
   private void processHeartBeatReq(ChannelHandlerContext ctx, String ip, String longId) {
-    redisUtil.set(RedisConstant.REDIS_BOARD_SERVER_PREFIX + longId, true, RedisConstant.REDIS_BOARD_SERVER_LIMIT, TimeUnit.SECONDS);
+//    redisUtil.set(RedisConstant.REDIS_BOARD_SERVER_PREFIX + longId, true, RedisConstant.REDIS_BOARD_SERVER_LIMIT, TimeUnit.SECONDS);
     log.info("心跳包: 来自long_id: " + longId + " ip: " + ip);
     if (longId.matches(pattern) && longId.length() == 4) {
       updateMap(ctx, longId, ip);

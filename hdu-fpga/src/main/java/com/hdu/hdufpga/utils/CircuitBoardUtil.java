@@ -9,8 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hdu.hdufpga.utils.ByteUtil.IntToBytes;
-import static com.hdu.hdufpga.utils.ByteUtil.StringToBytes;
+import static com.hdu.hdufpga.utils.ByteUtil.*;
 
 @Slf4j
 public class CircuitBoardUtil {
@@ -48,20 +47,8 @@ public class CircuitBoardUtil {
       byte[] preBytes = "SIZE#".getBytes();
       byte[] sufBytes = "#".getBytes();
 
-      byte[] sendBytes = new byte[preBytes.length + packNumBytes.length + filesizeBytes.length + sufBytes.length];
+      byte[] sendBytes = BytesConcat(preBytes, packNumBytes, filesizeBytes, sufBytes);
 
-      int offset = 0;
-
-      System.arraycopy(preBytes, 0, sendBytes, offset, preBytes.length);
-      offset += preBytes.length;
-
-      System.arraycopy(packNumBytes, 0, sendBytes, offset, packNumBytes.length);
-      offset += packNumBytes.length;
-
-      System.arraycopy(filesizeBytes, 0, sendBytes, offset, filesizeBytes.length);
-      offset += filesizeBytes.length;
-
-      System.arraycopy(sufBytes, 0, sendBytes, offset, sufBytes.length);
       sendToCbCtx(ctx, sendBytes);
     } else if (count < limit + 2) {
       String preString = "FIL*#";
@@ -71,14 +58,7 @@ public class CircuitBoardUtil {
       String sufString = "# #";
       byte[] sufBytes = sufString.getBytes();
 
-      byte[] sendBytes = new byte[preBytes.length + packList.get(count - 2).length + sufBytes.length];
-      int pos = 0;
-      System.arraycopy(preBytes, 0, sendBytes, pos, preBytes.length);
-      pos += preBytes.length;
-      System.arraycopy(packList.get(count - 2), 0, sendBytes, pos, packList.get(count - 2).length);
-      pos += packList.get(count - 2).length;
-      System.arraycopy(sufBytes, 0, sendBytes, pos, sufBytes.length);
-
+      byte[] sendBytes = BytesConcat(preBytes, packList.get(count - 2), sufBytes);
 
       sendToCbCtx(ctx, sendBytes);
       log.info("第 " + count + " 次发送数据 " + packList.get(count - 2).length * 2);
@@ -93,17 +73,7 @@ public class CircuitBoardUtil {
     byte[] preBytes = preString.getBytes();
     String sufString = "#";
     byte[] sufBytes = sufString.getBytes();
-    byte[] sendBytes = new byte[preBytes.length + buttonBytes.length + sufBytes.length];
-
-    int pos = 0;
-
-    System.arraycopy(preBytes, 0, sendBytes, pos, preBytes.length);
-    pos += preBytes.length;
-
-    System.arraycopy(buttonBytes, 0, sendBytes, pos, buttonBytes.length);
-    pos += buttonBytes.length;
-
-    System.arraycopy(sufBytes, 0, sendBytes, pos, sufBytes.length);
+    byte[] sendBytes = BytesConcat(preBytes, buttonBytes, sufBytes);
     sendToCbCtx(ctx, sendBytes);
   }
 

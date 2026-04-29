@@ -28,4 +28,27 @@ public class ByteUtil {
     }
     return result;
   }
+
+  public static byte[] BytesConcat(byte[]... arrays) {
+    int totalLength = 0;
+
+    // 计算总长度
+    for (byte[] arr : arrays) {
+      if (arr != null) {
+        totalLength += arr.length;
+      }
+    }
+
+    byte[] result = new byte[totalLength];
+
+    int offset = 0;
+    for (byte[] arr : arrays) {
+      if (arr != null) {
+        System.arraycopy(arr, 0, result, offset, arr.length);
+        offset += arr.length;
+      }
+    }
+
+    return result;
+  }
 }
