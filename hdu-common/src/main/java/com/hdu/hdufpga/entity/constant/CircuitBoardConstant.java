@@ -21,5 +21,5 @@ public class CircuitBoardConstant {
 
     public static final String FILE_PATH = "filePath";
 
-    public static final Integer SLICE_SIZE = 12800;
+    public static final Integer SLICE_SIZE = 25600;
 }
