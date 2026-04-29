@@ -7,9 +7,9 @@ import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import static com.hdu.hdufpga.utils.ByteUtil.IntToBytes;
 import static com.hdu.hdufpga.utils.ByteUtil.StringToBytes;
 
 @Slf4j
@@ -40,23 +40,29 @@ public class CircuitBoardUtil {
       sendToCbCtx(ctx, sendBytes); // 重新连接
       log.info("the first time to send message");
     } else if (count == 1) {
-      String sendString = "";
       // b.length 文件字节数  传输前置
-      int size = b.length / CircuitBoardConstant.SLICE_SIZE;
-      StringBuilder sizeString = new StringBuilder(Integer.toHexString(size));
-      for (int i = sizeString.length(); i < 3; i++) {
-        sizeString.insert(0, "0");  // 填充至三位 对应Byte[5..=7]
-      }
-      int c = b.length * 2;
-      StringBuilder sizeString2 = new StringBuilder(Integer.toHexString(c));
-      for (int i = sizeString2.length(); i < 6; i++) {
-        sizeString2.insert(0, "0"); // 填充至六位 对应Byte[8..=13]
-      }
-      sizeString.append(sizeString2);
-      sendString = "SIZE#" + sizeString + "#";
-      byte[] sendBytes = sendString.getBytes();
+      int size = (int) Math.ceil((double) b.length / CircuitBoardConstant.SLICE_SIZE);
+      byte[] packNumBytes = IntToBytes(size, 3);
+      byte[] filesizeBytes = IntToBytes(b.length, 6);
+
+      byte[] preBytes = "SIZE#".getBytes();
+      byte[] sufBytes = "#".getBytes();
+
+      byte[] sendBytes = new byte[preBytes.length + packNumBytes.length + filesizeBytes.length + sufBytes.length];
+
+      int offset = 0;
+
+      System.arraycopy(preBytes, 0, sendBytes, offset, preBytes.length);
+      offset += preBytes.length;
+
+      System.arraycopy(packNumBytes, 0, sendBytes, offset, packNumBytes.length);
+      offset += packNumBytes.length;
+
+      System.arraycopy(filesizeBytes, 0, sendBytes, offset, filesizeBytes.length);
+      offset += filesizeBytes.length;
+
+      System.arraycopy(sufBytes, 0, sendBytes, offset, sufBytes.length);
       sendToCbCtx(ctx, sendBytes);
-      log.info("发送文件字节大小:{}", sizeString);
     } else if (count < limit + 2) {
       String preString = "FIL*#";
       byte[] preBytes = preString.getBytes();

@@ -20,4 +20,12 @@ public class ByteUtil {
 
     return finalBytes;
   }
+
+  public static byte[] IntToBytes(long value, int length) {
+    byte[] result = new byte[length];
+    for (int i = 0; i < length; i++) {
+      result[length - 1 - i] = (byte) ((value >> (8 * i)) & 0xFF);
+    }
+    return result;
+  }
 }
