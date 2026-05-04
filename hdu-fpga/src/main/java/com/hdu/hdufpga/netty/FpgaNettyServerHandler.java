@@ -232,8 +232,8 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
     HashMap<String, Object> info = new HashMap<>();
     info.put(CircuitBoardConstant.IP, IP);
     info.put(CircuitBoardConstant.CTX, ctx);
-    info.put(CircuitBoardConstant.STATUS, "0");
-    info.put(CircuitBoardConstant.IS_RECORDED, "0");
+    info.put(CircuitBoardConstant.STATUS, false);
+    info.put(CircuitBoardConstant.IS_RECORDED, false);
     info.put(CircuitBoardConstant.BUTTON_STATUS, "");
     info.put(CircuitBoardConstant.LIGHT_STATUS, "");
     info.put(CircuitBoardConstant.NIXIE_TUBE_STATUS, "");
