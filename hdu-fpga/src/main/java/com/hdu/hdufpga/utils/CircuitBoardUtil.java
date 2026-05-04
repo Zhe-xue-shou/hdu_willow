@@ -40,7 +40,7 @@ public class CircuitBoardUtil {
       log.info("the first time to send message");
     } else if (count == 1) {
       // b.length 文件字节数  传输前置
-      int size = (int) Math.ceil((double) b.length / CircuitBoardConstant.SLICE_SIZE);
+      int size = b.length / CircuitBoardConstant.SLICE_SIZE;
       byte[] packNumBytes = IntToBytes(size, 3);
       byte[] filesizeBytes = IntToBytes(b.length, 6);
 
