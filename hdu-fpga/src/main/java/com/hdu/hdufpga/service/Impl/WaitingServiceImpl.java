@@ -124,6 +124,7 @@ public class WaitingServiceImpl implements WaitingService {
                 userConnectionVO.setIsFrozen(true);
                 userConnectionVO.setLeftSecond(redisUtil.getExpire(RedisConstant.REDIS_CONN_SHADOW_PREFIX + token, TimeUnit.SECONDS));
                 userConnectionVO.setUpdateDate(TimeUtil.getNowTime());
+                redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token); // 简单起见直接把实验时长字段删了
                 redisUtil.set(RedisConstant.REDIS_CONN_SHADOW_PREFIX + token, true, 12, TimeUnit.HOURS);
                 redisUtil.set(RedisConstant.REDIS_CONN_PREFIX + token, userConnectionVO, 12, TimeUnit.HOURS);
                 return true;

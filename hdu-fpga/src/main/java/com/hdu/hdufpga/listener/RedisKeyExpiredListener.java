@@ -51,7 +51,11 @@ public class RedisKeyExpiredListener extends KeyExpirationEventMessageListener {
             String[] split = expiredKey.split(":");
             String token = split[1];
             if (RedisConstant.REDIS_TTL_PREFIX.contains(split[0])) {
-                freeBoardAndFreezeConnection(token);
+                // 这里原来是freeBoardAndFreezeConnection
+                // 我搞不太懂冻结用户的意义在哪，直接给clearAndFree了
+                // 后续有兴趣可以改回
+//                freeBoardAndFreezeConnection(token);
+                circuitBoardService.clearUserRedisAndFreeCB(token);
             }
             if (RedisConstant.REDIS_BOARD_SERVER_PREFIX.contains(split[0])) {
                 NettySocketHolder.remove(token);
