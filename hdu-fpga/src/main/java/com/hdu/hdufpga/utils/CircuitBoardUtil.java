@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.hdu.hdufpga.utils.ByteUtil.*;
 
@@ -33,6 +34,11 @@ public class CircuitBoardUtil {
       String sendString = "NNN #" + longId + " #";
       byte[] sendBytes = sendString.getBytes();
       sendToCbCtx(ctx, sendBytes); // 结束上一次的控制
+      try {
+        TimeUnit.MILLISECONDS.sleep(100); // 等待0.1s 让板卡复位
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
 
       sendString = "CALL#" + longId + " #";
       sendBytes = sendString.getBytes();
@@ -73,7 +79,7 @@ public class CircuitBoardUtil {
     byte[] preBytes = preString.getBytes();
     String sufString = "#";
     byte[] sufBytes = sufString.getBytes();
-    byte[] sendBytes = BytesConcat(preBytes, buttonBytes, sufBytes);
+    byte[] sendBytes = BytesConcat(preBytes, buttonString.getBytes(), sufBytes);
     sendToCbCtx(ctx, sendBytes);
   }
 
