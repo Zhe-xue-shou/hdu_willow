@@ -40,6 +40,11 @@ public class WaitingServiceImpl implements WaitingService {
     @Transactional(rollbackFor = Exception.class)
     public UserConnectionVO userInQueue(String token) throws Exception {
         if (Validator.isNull(getRankInQueue(token))) {
+            if(redisUtil.hasKey(RedisConstant.REDIS_CONN_SHADOW_PREFIX + token)){
+                log.debug("{}已经在实验，重新连接",token);
+                UserConnectionVO userConnectionVO = Convert.convert(UserConnectionVO.class, redisUtil.get(RedisConstant.REDIS_CONN_PREFIX + token));
+                return userConnectionVO;
+            }
             // 如果有空闲的板子，那就不入队，直接找一块
             if (circuitBoardService.getFreeCircuitBoardCount() > 0) {
                 UserConnectionVO userConnectionVO = createUserConnectionVO(token);
