@@ -192,9 +192,11 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
 
   @Override
   public Boolean getRecordStatus(String token, String cbIp) throws CircuitBoardException {
-    CircuitBoardPO circuitBoardPO = getCircuitBoardByIp(cbIp);
-    if (Validator.isNotNull(circuitBoardPO)) {
-      Boolean isRecorded = (Boolean) NettySocketHolder.getValue(circuitBoardPO.getLongId(),
+    // 为了兼容api,仍然接收cbIp, 也许未来有用
+    UserConnectionVO userConnectionVO = Convert.convert(UserConnectionVO.class,
+        redisUtil.get(RedisConstant.REDIS_CONN_PREFIX + token));
+    if (Validator.isNotNull(userConnectionVO)) {
+      Boolean isRecorded = (Boolean) NettySocketHolder.getValue(userConnectionVO.getLongId(),
           CircuitBoardConstant.IS_RECORDED);
       if (Validator.isNotNull(isRecorded)) {
         return isRecorded;
