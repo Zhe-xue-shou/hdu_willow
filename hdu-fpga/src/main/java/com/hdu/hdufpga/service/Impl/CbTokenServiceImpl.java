@@ -57,6 +57,10 @@ public class CbTokenServiceImpl implements CbTokenService {
     if (leftTime > 0) {
       UserConnectionVO userConnectionVO = Convert.convert(UserConnectionVO.class, redisUtil.get(RedisConstant.REDIS_CONN_PREFIX + token));
       if (userConnectionVO != null) {
+        // 如果还是冻结状态
+        if (userConnectionVO.getIsFrozen()) {
+          return null;
+        }
         userConnectionVO.setLeftSecond(leftTime);
       }
       return userConnectionVO;
