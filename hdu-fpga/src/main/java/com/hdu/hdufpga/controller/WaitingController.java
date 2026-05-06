@@ -2,6 +2,7 @@ package com.hdu.hdufpga.controller;
 
 import com.hdu.hdufpga.annotation.CheckAndRefreshToken;
 import com.hdu.hdufpga.entity.Result;
+import com.hdu.hdufpga.exception.UserQueueException;
 import com.hdu.hdufpga.service.WaitingService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,11 @@ public class WaitingController {
         try {
             String token = request.getHeader("token");
             return Result.ok(waitingService.userInQueue(token));
+        } catch (UserQueueException e) {
+            if (e.isRecoverable()) {
+                return Result.ok(e.getMessage());
+            }
+            return Result.error(e.getMessage());
         } catch (Exception e) {
             return Result.error(e.getMessage());
         }
@@ -35,6 +41,11 @@ public class WaitingController {
         try {
             String token = request.getHeader("token");
             return waitingService.checkAvailability(token);
+        } catch (UserQueueException e) {
+            if (e.isRecoverable()) {
+                return Result.ok(e.getMessage());
+            }
+            return Result.error(e.getMessage());
         } catch (Exception e) {
             return Result.error(e.getMessage());
         }

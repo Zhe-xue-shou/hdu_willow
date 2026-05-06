@@ -60,19 +60,19 @@ public class WaitingServiceImpl implements WaitingService {
                         //解冻链接，进行实验
                         userConnectionVO = unfreezeConnection(token, circuitBoardPO);
                         if (Validator.isNull(userConnectionVO)) {
-                            throw new UserQueueException("解冻用户失败");
+                            throw new UserQueueException("解冻用户失败", UserQueueException.ExceptionType.IRRECOVERABLE);
                         } else {
                             return userConnectionVO;
                         }
                     } else {
-                        throw new UserQueueException("分配板卡失败");
+                        throw new UserQueueException("暂无空闲板卡,请等待...", UserQueueException.ExceptionType.RECOVERABLE);
                     }
                 } else {
-                    throw new UserQueueException("用户验证出错");
+                    throw new UserQueueException("用户验证出错", UserQueueException.ExceptionType.IRRECOVERABLE);
                 }
             }
         } else {
-            throw new UserQueueException("已经在队列中");
+            throw new UserQueueException("已经在队列中", UserQueueException.ExceptionType.RECOVERABLE);
         }
 
         if (Validator.isNull(getRankInQueue(token))) {
@@ -84,10 +84,10 @@ public class WaitingServiceImpl implements WaitingService {
             if (bShadow && bWaiting) {
                 return userConnectionVO;
             } else {
-                throw new UserQueueException("用户验证出错");
+                throw new UserQueueException("用户验证出错", UserQueueException.ExceptionType.IRRECOVERABLE);
             }
         } else {
-            throw new UserQueueException("已经在队列中");
+            throw new UserQueueException("已经在队列中", UserQueueException.ExceptionType.RECOVERABLE);
         }
     }
 
@@ -96,7 +96,7 @@ public class WaitingServiceImpl implements WaitingService {
     public Result checkAvailability(String token) throws Exception {
         Long number = getRankInQueue(token);
         if (Validator.isNull(number)) {
-            throw new UserQueueException("用户不在队列中");
+            throw new UserQueueException("用户不在队列中", UserQueueException.ExceptionType.IRRECOVERABLE);
         } else if (number == 0) { // 如果当前队伍前面没人了
             // 获取空闲板卡
             CircuitBoardPO circuitBoardPO = circuitBoardService.getAFreeCircuitBoard();
@@ -106,11 +106,11 @@ public class WaitingServiceImpl implements WaitingService {
                 // 解冻连接，开始实验
                 UserConnectionVO userConnectionVO = unfreezeConnection(token, circuitBoardPO);
                 if (userConnectionVO == null) {
-                    throw new UserQueueException("解冻用户失败,请重试");
+                    throw new UserQueueException("解冻用户失败,请重试", UserQueueException.ExceptionType.IRRECOVERABLE);
                 }
                 return Result.ok(userConnectionVO);
             } else {
-                throw new UserQueueException("分配板卡失败");
+                throw new UserQueueException("暂无空闲板卡,请等待...", UserQueueException.ExceptionType.RECOVERABLE);
             }
         } else {
             return Result.ok("用户在队列中，排在第" + number + "位");
