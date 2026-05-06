@@ -43,6 +43,8 @@ public class WaitingServiceImpl implements WaitingService {
             if(redisUtil.hasKey(RedisConstant.REDIS_CONN_SHADOW_PREFIX + token)){
                 log.debug("{}已经在实验，重新连接",token);
                 UserConnectionVO userConnectionVO = Convert.convert(UserConnectionVO.class, redisUtil.get(RedisConstant.REDIS_CONN_PREFIX + token));
+                long leftTime = redisUtil.getExpire(RedisConstant.REDIS_CONN_SHADOW_PREFIX + token, TimeUnit.SECONDS);
+                userConnectionVO.setLeftSecond(leftTime);
                 return userConnectionVO;
             }
             // 如果有空闲的板子，那就不入队，直接找一块
