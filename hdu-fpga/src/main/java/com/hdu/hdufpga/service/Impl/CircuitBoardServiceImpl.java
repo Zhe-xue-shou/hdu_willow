@@ -60,7 +60,9 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
       baseMapper.updateById(circuitBoardPO);
       return circuitBoardPO;
     } else {
-      throw new CircuitBoardException("暂无空闲板卡");
+//      throw new CircuitBoardException("暂无空闲板卡");
+        log.info("暂无空闲板卡");
+        return null;
     }
   }
 
