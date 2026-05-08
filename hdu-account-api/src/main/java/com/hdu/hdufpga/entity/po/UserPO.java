@@ -17,7 +17,6 @@ public class UserPO extends BaseEntity {
     private String username;
     private String password;
     private String realName;
-    private Long activeTime;
     @TableField("department")
     private Integer userDepartmentId;
     @TableField(exist = false)

@@ -20,7 +20,6 @@ public class UserVO extends BaseEntity {
     private String password;
     @ExcelProperty("姓名")
     private String realName;
-    private Long activeTime; // todo: undocumented. ???
     private Integer userDepartmentId;
     private String userDepartmentName;
     private Integer userRoleId;

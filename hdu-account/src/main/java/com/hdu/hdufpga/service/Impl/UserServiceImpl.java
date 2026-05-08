@@ -95,7 +95,6 @@ public class UserServiceImpl extends MPJBaseServiceImpl<UserMapper, UserPO> impl
     vo.setUsername(userPO.getUsername());
     vo.setPassword(userPO.getPassword());
     vo.setRealName(userPO.getRealName());
-    vo.setActiveTime(userPO.getActiveTime());
 
     vo.setUserDepartmentId(userPO.getUserDepartmentId());
     vo.setUserDepartmentName(userPO.getUserDepartmentName());

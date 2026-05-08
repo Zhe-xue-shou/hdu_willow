@@ -318,7 +318,6 @@ CREATE TABLE `t_user`
     `username`        varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
     `password`        varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
     `real_name`       varchar(100) COLLATE utf8mb4_general_ci          DEFAULT NULL,
-    `active_time`     int                                              DEFAULT NULL,
     `role`            int                                     NOT NULL,
     `department`      int                                              DEFAULT NULL,
     `is_deleted`      tinyint(1)                              NOT NULL DEFAULT '0',
