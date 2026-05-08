@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.hdu.hdufpga.entity.constant.CircuitBoardConstant;
 import com.hdu.hdufpga.entity.constant.RedisConstant;
+import com.hdu.hdufpga.entity.dto.UserStatisticDTO;
 import com.hdu.hdufpga.entity.po.CircuitBoardPO;
 import com.hdu.hdufpga.entity.vo.UserConnectionVO;
 import com.hdu.hdufpga.exception.CircuitBoardException;
@@ -61,8 +62,8 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
       return circuitBoardPO;
     } else {
 //      throw new CircuitBoardException("暂无空闲板卡");
-        log.info("暂无空闲板卡");
-        return null;
+      log.info("暂无空闲板卡");
+      return null;
     }
   }
 
@@ -166,21 +167,22 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
   }
 
   @Override
-  public Boolean clearUserRedisAndFreeCB(String token) throws CircuitBoardException, SQLException {
+  public UserStatisticDTO clearUserRedisAndFreeCB(String token) throws Exception {
     UserConnectionVO connectionVO = (UserConnectionVO)
         redisUtil.get(RedisConstant.REDIS_CONN_PREFIX + token);
     if (Validator.isNull(connectionVO)) {
-      return false;
+      return null;
     }
-    if (!cbUseRecordService.saveUseRecord(connectionVO)) {
+
+    UserStatisticDTO userStatisticDTO = userStatisticService.updateUserExptimeByToken(token);
+    redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
+
+    if (!cbUseRecordService.saveUseRecord(connectionVO, userStatisticDTO.getAddActiveTime())) {
       throw new SQLException("保存用户信息错误");
     }
     if (freeCircuitBoard(connectionVO.getCbIp()) == null) {
       throw new CircuitBoardException("释放板卡失败");
     }
-
-    userStatisticService.updateUserExptimeByToken(token);
-    redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
 
     redisUtil.del(RedisConstant.REDIS_CONN_PREFIX + token, RedisConstant.REDIS_TTL_PREFIX + token,
         RedisConstant.REDIS_CONN_SHADOW_PREFIX + token);
@@ -189,7 +191,8 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
     circuitBoardHistoryOperationService.clearSteps(token);
     log.info("用户{}相关文件已清除", token);
 
-    return false;
+
+    return userStatisticDTO;
   }
 
   @Override

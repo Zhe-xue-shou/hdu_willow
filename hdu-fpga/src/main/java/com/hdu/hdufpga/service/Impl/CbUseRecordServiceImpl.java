@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class CbUseRecordServiceImpl extends MPJBaseServiceImpl<CbUseRecordMapper, CbUseRecordPO> implements CbUseRecordService {
 
   @Override
-  public Boolean saveUseRecord(UserConnectionVO userConnectionVO) {
+  public Boolean saveUseRecord(UserConnectionVO userConnectionVO, Long addActiveTime) {
     CbUseRecordPO cbUseRecordPO = new CbUseRecordPO();
     String token = userConnectionVO.getToken();
     String[] info = token.split("_");
@@ -23,7 +23,7 @@ public class CbUseRecordServiceImpl extends MPJBaseServiceImpl<CbUseRecordMapper
     cbUseRecordPO.setUserIp(userConnectionVO.getUserIp());
     cbUseRecordPO.setDepartmentName(info[1]);
     cbUseRecordPO.setFileUploadTime(1);
-    cbUseRecordPO.setDuration((int) (RedisConstant.REDIS_CONN_SHADOW_LIMIT - userConnectionVO.getLeftSecond()));
+    cbUseRecordPO.setDuration(Math.toIntExact(addActiveTime));
     cbUseRecordPO.setCreateTime(TimeUtil.getNowTime());
     cbUseRecordPO.setUpdateTime(TimeUtil.getNowTime());
     return save(cbUseRecordPO);

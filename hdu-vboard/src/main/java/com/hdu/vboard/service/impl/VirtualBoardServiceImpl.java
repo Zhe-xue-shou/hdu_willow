@@ -4,6 +4,7 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONObject;
 import com.hdu.hdufpga.entity.constant.RedisConstant;
+import com.hdu.hdufpga.entity.dto.UserStatisticDTO;
 import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.hdufpga.util.TimeUtil;
 import com.hdu.vboard.entity.bo.SimulationWorkerBO;
@@ -266,7 +267,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
   // 先清理文件，再停止线程，防止资源泄露
   @Override
-  public Boolean stopWorkbench(String token, int status) throws Exception {
+  public UserStatisticDTO stopWorkbench(String token, int status) throws Exception {
     VbConnectionVO vbConnectionVO = Convert.convert(VbConnectionVO.class, redisUtil.get(VbRedisConstant.REDIS_VB_CONN_PREFIX + token));
     clearWorkbench(token);
     SimulationWorkerBO simulationWorkerBO = simulationWorkers.remove(token);
@@ -279,17 +280,18 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
       simulationWorkerBO.simulationProcess.destroy();
       log.info("simulation process:{} stopped!", token);
     }
-    userStatisticService.updateUserExptimeByToken(token);
-    redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
     redisUtil.del(VbRedisConstant.REDIS_VB_CONN_PREFIX + token);
     log.debug("vb_connection of token: {} in redis has successfully deleted!", token);
-    if (!vbUseRecordService.saveVbRecord(vbConnectionVO, status)) {
+
+    UserStatisticDTO userStatisticDTO = userStatisticService.updateUserExptimeByToken(token);
+    redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
+    if (!vbUseRecordService.saveVbRecord(vbConnectionVO, status, userStatisticDTO.getAddActiveTime())) {
       throw new SQLException("save user vb use record error token: {}", token);
     } else {
       log.debug("Successfully insert vb record into t_vb_use_record");
     }
     applicationEventPublisher.publishEvent(new WorkerStateEvent(this, WorkerStatesEventType.FINISH, token, null));
-    return true;
+    return userStatisticDTO;
   }
 
   // 单纯清理工作区文件

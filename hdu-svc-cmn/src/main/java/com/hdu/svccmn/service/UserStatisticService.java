@@ -1,7 +1,9 @@
 package com.hdu.svccmn.service;
 
-public interface UserStatisticService {
-  void updateUserExptime(String username, Integer departmentId, Long sTime) throws Exception;
+import com.hdu.hdufpga.entity.dto.UserStatisticDTO;
 
-  void updateUserExptimeByToken(String token);
+public interface UserStatisticService {
+  UserStatisticDTO updateUserExptime(String username, Integer departmentId, Long sTime) throws Exception;
+
+  UserStatisticDTO updateUserExptimeByToken(String token) throws Exception;
 }

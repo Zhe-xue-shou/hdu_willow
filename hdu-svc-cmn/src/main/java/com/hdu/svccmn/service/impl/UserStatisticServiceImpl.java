@@ -1,13 +1,13 @@
 package com.hdu.svccmn.service.impl;
 
 import com.hdu.hdufpga.entity.constant.RedisConstant;
+import com.hdu.hdufpga.entity.dto.UserStatisticDTO;
 import com.hdu.hdufpga.entity.po.UserPO;
 import com.hdu.hdufpga.service.UserService;
 import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.svccmn.service.UserStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +25,7 @@ public class UserStatisticServiceImpl implements UserStatisticService {
 
   @Override
   @Transactional
-  public void updateUserExptime(String username, Integer departmentId, Long sTime) throws Exception {
+  public UserStatisticDTO updateUserExptime(String username, Integer departmentId, Long sTime) throws Exception {
     long curTime = System.currentTimeMillis();
 
     if (sTime == null || sTime <= 0 || sTime >= curTime) {
@@ -41,7 +41,7 @@ public class UserStatisticServiceImpl implements UserStatisticService {
     if (userPO == null) {
       log.error("Cannot find userPO in database for username: {}, departmentId: {}",
           username, departmentId);
-      return;
+      throw new Exception("找不到用户");
     }
 
     long currentTotalMillis = userPO.getTotActiveTime();
@@ -53,27 +53,29 @@ public class UserStatisticServiceImpl implements UserStatisticService {
     userService.updateById(userPO);
     log.info("Updated user {} statistics: +{} ms, +1 exp",
         username, expTimeInMillis);
+    return UserStatisticDTO.builder()
+        .addExpCnt(1)
+        .addActiveTime(expTimeInMillis)
+        .totActiveTime(currentTotalMillis + expTimeInMillis)
+        .totExpCnt(currentCount + 1)
+        .build();
   }
 
   @Override
-  public void updateUserExptimeByToken(String token) {
+  public UserStatisticDTO updateUserExptimeByToken(String token) throws Exception {
     String[] tokenInfo = token.split("_");
 
     if (tokenInfo.length < 4) {
       log.error("experience token invalid! token value:{}", token);
-      return;
+      throw new Exception("实验Token解析失败");
     }
 
-    try {
-      String username = tokenInfo[0];
-      Integer departmentId = Integer.parseInt(tokenInfo[2]);
+    String username = tokenInfo[0];
+    Integer departmentId = Integer.parseInt(tokenInfo[2]);
 
-      Long startTime =
-          (Long) redisUtil.get(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
+    Long startTime =
+        (Long) redisUtil.get(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
 
-      updateUserExptime(username, departmentId, startTime);
-    } catch (Exception e) {
-      log.error("无法更新实验时间，出现错误:{}", e.toString());
-    }
+    return updateUserExptime(username, departmentId, startTime);
   }
 }

@@ -5,5 +5,5 @@ import com.hdu.vboard.entity.po.VbUseRecordPO;
 import com.hdu.vboard.entity.vo.VbConnectionVO;
 
 public interface VbUseRecordService extends MPJBaseService<VbUseRecordPO> {
-  Boolean saveVbRecord(VbConnectionVO vbConnectionVO, int status);
+  Boolean saveVbRecord(VbConnectionVO vbConnectionVO, int status, Long addActiveTime);
 }

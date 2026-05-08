@@ -1,11 +1,9 @@
 package com.hdu.hdufpga.service;
 
 import com.github.yulichang.base.MPJBaseService;
+import com.hdu.hdufpga.entity.dto.UserStatisticDTO;
 import com.hdu.hdufpga.entity.po.CircuitBoardPO;
 import com.hdu.hdufpga.exception.CircuitBoardException;
-
-import java.sql.SQLException;
-
 
 public interface CircuitBoardService extends MPJBaseService<CircuitBoardPO> {
     CircuitBoardPO getAFreeCircuitBoard() throws CircuitBoardException;
@@ -24,7 +22,7 @@ public interface CircuitBoardService extends MPJBaseService<CircuitBoardPO> {
 
     void recordBitToBitForTheFirstTime(String token, String filePath);
 
-    Boolean clearUserRedisAndFreeCB(String token) throws CircuitBoardException, SQLException;
+    UserStatisticDTO clearUserRedisAndFreeCB(String token) throws Exception;
 
     Boolean getRecordStatus(String token, String cbIp) throws CircuitBoardException;
 

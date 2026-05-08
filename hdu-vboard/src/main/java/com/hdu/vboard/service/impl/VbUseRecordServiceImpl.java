@@ -13,12 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class VbUseRecordServiceImpl extends MPJBaseServiceImpl<VbUseRecordMapper, VbUseRecordPO> implements VbUseRecordService {
   @Override
   @Transactional
-  public Boolean saveVbRecord(VbConnectionVO vbConnectionVO, int status) {
+  public Boolean saveVbRecord(VbConnectionVO vbConnectionVO, int status, Long addActiveTime) {
     VbUseRecordPO vbUseRecordPO = new VbUseRecordPO();
     vbUseRecordPO.setUserName(vbConnectionVO.getUserName());
     vbUseRecordPO.setUserIp(vbConnectionVO.getUserIp());
     vbUseRecordPO.setDepartmentName(vbConnectionVO.getDepartmentName());
-    vbUseRecordPO.setDuration(114514);
+    vbUseRecordPO.setDuration(Math.toIntExact(addActiveTime));
     vbUseRecordPO.setBuildTime(vbConnectionVO.getBuildTime());
     vbUseRecordPO.setStatus(status);
     vbUseRecordPO.setCreateTime(TimeUtil.getNowTime());
