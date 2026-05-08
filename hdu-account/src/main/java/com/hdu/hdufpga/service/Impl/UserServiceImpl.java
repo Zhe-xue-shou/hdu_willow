@@ -1,10 +1,12 @@
 package com.hdu.hdufpga.service.Impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.hdu.hdufpga.entity.constant.SysConstant;
+import com.hdu.hdufpga.entity.dto.UserStatisticDTO;
 import com.hdu.hdufpga.entity.po.DepartmentPO;
 import com.hdu.hdufpga.entity.po.RolePO;
 import com.hdu.hdufpga.entity.po.UserPO;
@@ -17,7 +19,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -80,6 +81,7 @@ public class UserServiceImpl extends MPJBaseServiceImpl<UserMapper, UserPO> impl
     return userMapper.selectJoinOne(UserPO.class, wrapper);
   }
 
+  @Override
   public UserVO UserPO2UserVO(UserPO userPO) {
     if (userPO == null) {
       return null;
@@ -87,7 +89,6 @@ public class UserServiceImpl extends MPJBaseServiceImpl<UserMapper, UserPO> impl
 
     UserVO vo = new UserVO();
 
-    // BaseEntity 字段（假设有 id / createTime 等）
     vo.setId(userPO.getId());
     vo.setCreateTime(userPO.getCreateTime());
     vo.setUpdateTime(userPO.getUpdateTime());
@@ -103,25 +104,10 @@ public class UserServiceImpl extends MPJBaseServiceImpl<UserMapper, UserPO> impl
     vo.setUserRoleName(userPO.getUserRoleName());
 
     vo.setPrivilegeLevel(userPO.getPrivilegeLevel());
-
-    // ===== 特殊字段转换 =====
-
-    // Long -> Duration
-    if (userPO.getTotActiveTime() != null) {
-      vo.setTotActiveTime(Duration.ofSeconds(userPO.getTotActiveTime()));
-      // 如果你数据库存的是毫秒，改成：
-      // Duration.ofMillis(userPO.getTotActiveTime())
-    } else {
-      vo.setTotActiveTime(Duration.ZERO);
-    }
-
-    vo.setTotExpCnt(
-        userPO.getTotExpCnt() != null ? userPO.getTotExpCnt() : 0
-    );
-
     return vo;
   }
 
+  @Override
   public UserVO createThirdUser(String uid, String source) {
     UserPO userPO = new UserPO();
     userPO.setUsername("thirdPart-" + uid + SysConstant.DASH + source);
@@ -136,5 +122,18 @@ public class UserServiceImpl extends MPJBaseServiceImpl<UserMapper, UserPO> impl
       log.warn("重复创建第三方用户：" + e.getMessage());
     }
     return UserPO2UserVO(userPO);
+  }
+
+  @Override
+  public UserStatisticDTO getCurrentUserStatistics() throws Exception {
+    UserVO userVO = (UserVO) StpUtil.getSession().get("user");
+    if (userVO == null) {
+      throw new Exception("用户未登录");
+    }
+    UserPO userPO = getUserByUserName(userVO.getUsername(), userVO.getUserDepartmentId());
+    return UserStatisticDTO.builder()
+        .totExpCnt(userPO.getTotExpCnt())
+        .totActiveTime(userPO.getTotActiveTime())
+        .build();
   }
 }

@@ -1,6 +1,7 @@
 package com.hdu.hdufpga.service;
 
 import com.github.yulichang.base.MPJBaseService;
+import com.hdu.hdufpga.entity.dto.UserStatisticDTO;
 import com.hdu.hdufpga.entity.po.UserPO;
 import com.hdu.hdufpga.entity.vo.UserVO;
 
@@ -18,4 +19,6 @@ public interface UserService extends MPJBaseService<UserPO> {
   UserVO UserPO2UserVO(UserPO userPO);
 
   UserVO createThirdUser(String uid, String source);
+
+  UserStatisticDTO getCurrentUserStatistics() throws Exception;
 }

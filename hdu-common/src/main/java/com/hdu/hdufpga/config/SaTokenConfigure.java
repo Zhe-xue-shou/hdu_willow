@@ -52,6 +52,7 @@ public class SaTokenConfigure implements WebMvcConfigurer {
               "/class/**",
               "/testRecord/**",
               "/studentStudyRecord/**")
+          .notMatch("/user/getStatistics")
           .check(r -> StpUtil.checkRoleOr(RoleEnum.TEACHER.getRoleId(), RoleEnum.ADMIN.getRoleId()));
 
       // >=3
