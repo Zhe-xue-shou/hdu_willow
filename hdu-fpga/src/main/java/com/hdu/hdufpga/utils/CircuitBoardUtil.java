@@ -59,7 +59,7 @@ public class CircuitBoardUtil {
     } else if (count < limit + 2) {
       String preString = "FIL*#";
       byte[] preBytes = preString.getBytes();
-      preBytes[3] = (byte) (count - 2);
+      preBytes[3] = (byte) (count - 1);
 
       String sufString = "# #";
       byte[] sufBytes = sufString.getBytes();
@@ -120,15 +120,15 @@ public class CircuitBoardUtil {
       checkv += (i & 0xFF);  // 使用无符号值计算
     }
 
-    byte[] checksumBytes = new byte[3];
-    checksumBytes[0] = (byte) ((checkv >> 16) & 0xFF);  // 最高8位
-    checksumBytes[1] = (byte) ((checkv >> 8) & 0xFF);   // 中间8位
-    checksumBytes[2] = (byte) (checkv & 0xFF);          // 最低8位
+//    byte[] checksumBytes = new byte[3];
+//    checksumBytes[0] = (byte) ((checkv >> 16) & 0xFF);  // 最高8位
+//    checksumBytes[1] = (byte) ((checkv >> 8) & 0xFF);   // 中间8位
+//    checksumBytes[2] = (byte) (checkv & 0xFF);          // 最低8位
 
     // 合并原始数据
-    byte[] resultBytes = new byte[sendBytes.length + checksumBytes.length];
-    System.arraycopy(sendBytes, 0, resultBytes, 0, sendBytes.length);
-    System.arraycopy(checksumBytes, 0, resultBytes, sendBytes.length, checksumBytes.length);
+    byte[] resultBytes = sendBytes;
+//    System.arraycopy(sendBytes, 0, resultBytes, 0, sendBytes.length);
+//    System.arraycopy(checksumBytes, 0, resultBytes, sendBytes.length, checksumBytes.length);
 
     // 发送原始字节数据
     ctx.writeAndFlush(Unpooled.wrappedBuffer(resultBytes));
