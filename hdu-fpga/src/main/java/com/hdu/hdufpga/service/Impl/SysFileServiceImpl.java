@@ -63,7 +63,9 @@ public class SysFileServiceImpl extends MPJBaseServiceImpl<SysFileMapper, SysFil
       saveOrUpdate(sysFilePO);
       // 烧录板卡
       circuitBoardService.recordBitToBitForTheFirstTime(token, filePath);
-      redisUtil.set(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token, System.currentTimeMillis());
+      if (!redisUtil.hasKey(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token)) {
+        redisUtil.set(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token, System.currentTimeMillis());
+      }
       return true;
     } else {
       throw new InvalidFileSuffixException("文件后缀不为bit");

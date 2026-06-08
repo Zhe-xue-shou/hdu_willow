@@ -28,8 +28,12 @@ public class UserStatisticServiceImpl implements UserStatisticService {
   public UserStatisticDTO updateUserExptime(String username, Integer departmentId, Long sTime) throws Exception {
     long curTime = System.currentTimeMillis();
 
-    if (sTime == null || sTime <= 0 || sTime >= curTime) {
-      throw new Exception("stime is null or stime > curtime");
+    if (sTime == null) {
+      return null;
+    }
+
+    if (sTime <= 0 || sTime >= curTime) {
+      throw new Exception("stime > curtime");
     }
     Duration expTime = Duration.ofMillis(curTime - sTime);
 
