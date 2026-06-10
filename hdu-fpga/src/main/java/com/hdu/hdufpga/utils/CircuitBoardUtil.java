@@ -74,8 +74,8 @@ public class CircuitBoardUtil {
   }
 
   public static void sendButtonStringToCB(ChannelHandlerContext ctx, String buttonString) {
-    byte[] buttonBytes = StringToBytes(buttonString);
-    String preString = "CTR #";
+//    byte[] buttonBytes = StringToBytes(buttonString);
+    String preString = "CTR#";
     byte[] preBytes = preString.getBytes();
     String sufString = "#";
     byte[] sufBytes = sufString.getBytes();
@@ -104,7 +104,8 @@ public class CircuitBoardUtil {
     if (tapButtonStatus.length() == 6) {
       tapButtonStatus = tapButtonStatus + "00";
     }
-    if (tapButtonStatus.length() == 8) {
+    tapButtonStatus = "0000" + tapButtonStatus;
+    if (tapButtonStatus.length() == 12) {
       finalString.append(HexUtil.binaryToHex(tapButtonStatus));
 //      System.arraycopy(HexUtil.binaryToHexBytes(tapButtonStatus), 0, finalBytes, 4, 1);
     } else {

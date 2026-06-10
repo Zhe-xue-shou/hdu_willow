@@ -45,12 +45,12 @@ spring:
         cors-configurations:
           '[/**]':
             allowedOrigins:
-              - "http://127.0.0.1:8080" #允许跨域
+              - "http://127.0.0.1:8080" #allow cross-domain
               - "http://127.0.0.1:8081"
               - "http://127.0.0.1:8082"
               - "http://127.0.0.1:8083"
               - "http://127.0.0.1:5173"
-              - "http://115.29.215.12:8080"
+              - "http://localhost:5173"
             allow-credentials: true
             allowed-headers: "*"
             allowedMethods: #请求方式
