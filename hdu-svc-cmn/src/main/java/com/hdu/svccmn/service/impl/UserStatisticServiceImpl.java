@@ -54,7 +54,7 @@ public class UserStatisticServiceImpl implements UserStatisticService {
     int currentCount = userPO.getTotExpCnt();
     userPO.setTotExpCnt(currentCount + 1);
 
-    userService.updateById(userPO);
+    userService.updateByIdWithoutChangePassword(userPO);
     log.info("Updated user {} statistics: +{} ms, +1 exp",
         username, expTimeInMillis);
     return UserStatisticDTO.builder()
