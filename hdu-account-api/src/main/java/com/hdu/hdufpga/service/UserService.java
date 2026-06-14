@@ -16,6 +16,10 @@ public interface UserService extends MPJBaseService<UserPO> {
 
   UserPO getUserByUserName(String userName, Integer departmentId);
 
+  // 该方法会简单地调用super.updateById
+  // 这是为了兼容以前的updateById方法 那个方法会对密码使用md5加密
+  public boolean updateByIdWithoutChangePassword(UserPO entity);
+
   UserVO UserPO2UserVO(UserPO userPO);
 
   UserVO createThirdUser(String uid, String source);

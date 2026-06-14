@@ -66,6 +66,11 @@ public class UserServiceImpl extends MPJBaseServiceImpl<UserMapper, UserPO> impl
   }
 
   @Override
+  public boolean updateByIdWithoutChangePassword(UserPO entity) {
+    return super.updateById(entity);
+  }
+
+  @Override
   public UserPO getUserByUserName(String userName, Integer departmentId) {
     MPJLambdaWrapper<UserPO> wrapper = new MPJLambdaWrapper<>();
     wrapper
