@@ -175,10 +175,12 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
     }
 
     UserStatisticDTO userStatisticDTO = userStatisticService.updateUserExptimeByToken(token);
-    redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
+    if(userStatisticDTO!=null) {
+      redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
 
-    if (!cbUseRecordService.saveUseRecord(connectionVO, userStatisticDTO.getAddActiveTime())) {
-      throw new SQLException("保存用户信息错误");
+      if (!cbUseRecordService.saveUseRecord(connectionVO, userStatisticDTO.getAddActiveTime())) {
+        throw new SQLException("保存用户信息错误");
+      }
     }
     if (freeCircuitBoard(connectionVO.getCbIp()) == null) {
       throw new CircuitBoardException("释放板卡失败");
