@@ -1,5 +1,6 @@
 package com.hdu.svccmn.service.impl;
 
+import com.hdu.hdufpga.entity.constant.AccountConstant;
 import com.hdu.hdufpga.entity.constant.RedisConstant;
 import com.hdu.hdufpga.entity.dto.UserStatisticDTO;
 import com.hdu.hdufpga.entity.po.UserPO;
@@ -67,7 +68,7 @@ public class UserStatisticServiceImpl implements UserStatisticService {
 
   @Override
   public UserStatisticDTO updateUserExptimeByToken(String token) throws Exception {
-    String[] tokenInfo = token.split("_");
+    String[] tokenInfo = token.split(AccountConstant.token_split_char);
 
     if (tokenInfo.length < 4) {
       log.error("experience token invalid! token value:{}", token);

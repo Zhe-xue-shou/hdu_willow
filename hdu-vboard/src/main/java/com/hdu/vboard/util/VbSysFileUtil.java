@@ -1,6 +1,7 @@
 package com.hdu.vboard.util;
 
 import cn.hutool.core.io.FileUtil;
+import com.hdu.hdufpga.entity.constant.AccountConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileExistsException;
 import org.springframework.web.multipart.MultipartFile;
@@ -104,7 +105,7 @@ public class VbSysFileUtil {
   }
 
   public static String transToken2Path(String token) {
-    String[] token_info = token.split("_");
+    String[] token_info = token.split(AccountConstant.token_split_char);
     String departmentName = token_info[1];
     String userName = token_info[0];
     return departmentName + "/" + userName;

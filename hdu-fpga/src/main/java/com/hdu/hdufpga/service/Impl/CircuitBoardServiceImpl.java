@@ -175,7 +175,7 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
     }
 
     UserStatisticDTO userStatisticDTO = userStatisticService.updateUserExptimeByToken(token);
-    if(userStatisticDTO!=null) {
+    if (userStatisticDTO != null) {
       redisUtil.del(RedisConstant.REDIS_EXP_START_TIME_PREFIX + token);
 
       if (!cbUseRecordService.saveUseRecord(connectionVO, userStatisticDTO.getAddActiveTime())) {
@@ -274,6 +274,23 @@ public class CircuitBoardServiceImpl extends MPJBaseServiceImpl<CircuitBoardMapp
       throw new CircuitBoardException("按钮状态状态为空");
     }
   }
+
+  @Override
+  public byte[] getImage(String token) throws CircuitBoardException {
+    UserConnectionVO userConnectionVO = Convert.convert(UserConnectionVO.class,
+        redisUtil.get(RedisConstant.REDIS_CONN_PREFIX + token));
+    String longId = userConnectionVO.getLongId();
+    ChannelHandlerContext ctx = NettySocketHolder.getCtx(longId);
+    CircuitBoardUtil.requireImage(ctx, longId);
+
+    byte[] image_bytes = (byte[]) NettySocketHolder.getValue(longId, CircuitBoardConstant.IMAGE);
+    if (Validator.isNotNull(image_bytes)) {
+      return image_bytes;
+    } else {
+      throw new CircuitBoardException("图片信息为空");
+    }
+  }
+
 
   @Override
   public String getNextLongId() {

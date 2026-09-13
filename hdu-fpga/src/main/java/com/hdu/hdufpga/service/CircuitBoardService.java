@@ -34,5 +34,7 @@ public interface CircuitBoardService extends MPJBaseService<CircuitBoardPO> {
 
     String getProcessedBtnStr(String token) throws CircuitBoardException;
 
+    byte[] getImage(String token) throws CircuitBoardException;
+
     String getNextLongId();
 }

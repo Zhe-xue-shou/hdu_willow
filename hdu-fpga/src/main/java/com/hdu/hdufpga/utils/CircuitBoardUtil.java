@@ -115,6 +115,13 @@ public class CircuitBoardUtil {
     return finalString.toString();
   }
 
+  public static void requireImage(ChannelHandlerContext ctx, String longId) {
+    // todo: protocol need to be confirmed
+    String sendString = "IMAGE#" + longId + " #";
+    byte[] sendBytes = sendString.getBytes();
+    sendToCbCtx(ctx, sendBytes); // 结束上一次的控制
+  }
+
   public static void sendToCbCtx(ChannelHandlerContext ctx, byte[] sendBytes) {
     int checkv = 0;
     for (byte i : sendBytes) {

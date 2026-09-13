@@ -9,6 +9,7 @@ import com.hdu.hdufpga.service.CircuitBoardService;
 import com.hdu.hdufpga.util.RedisUtil;
 import com.hdu.hdufpga.util.TimeUtil;
 import com.hdu.hdufpga.utils.CircuitBoardUtil;
+import com.hdu.hdufpga.websocket.WebSocketPushService;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -30,6 +31,8 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
   RedisUtil redisUtil;
   @Resource
   CircuitBoardService circuitBoardService;
+  @Resource
+  WebSocketPushService webSocketPushService;
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, String msg) {
@@ -61,10 +64,10 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
     if (msg.contains("STAT") || msg.contains("SIG")) {
       processSTATReq(ip, msg);
     }
-//        if(msg.contains("image")){
-////            processSTATReq();
-//            // todo
-//        }
+    if (msg.contains("IMAGE")) {
+      processImageReq(longId, msg);
+      // todo
+    }
   }
 
   @Override
@@ -115,8 +118,17 @@ public class FpgaNettyServerHandler extends SimpleChannelInboundHandler<String> 
       NettySocketHolder.putValue(longId, CircuitBoardConstant.NIXIE_TUBE_STATUS, nixieTubeString);
     } else {
       log.error("STAT数据格式错误");
+      return;
     }
+    webSocketPushService.pushEvent(longId);
     log.info("已更新light状态! ID:{}, status:{}", longId, str[1]);
+  }
+
+  private void processImageReq(String longId, String msg) {
+    String[] image = msg.split("IMAGE#" + longId + "#");
+    byte[] image_bytes = image[1].getBytes();
+    NettySocketHolder.putValue(longId, CircuitBoardConstant.IMAGE, image_bytes);
+    log.info("已获取到图片! ID:{}, image_bytes:{}", longId, image_bytes);
   }
 
   private void processNICEReq() {

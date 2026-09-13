@@ -3,6 +3,7 @@ package com.hdu.vboard.service.impl;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONObject;
+import com.hdu.hdufpga.entity.constant.AccountConstant;
 import com.hdu.hdufpga.entity.constant.RedisConstant;
 import com.hdu.hdufpga.entity.dto.UserStatisticDTO;
 import com.hdu.hdufpga.util.RedisUtil;
@@ -310,7 +311,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
   public VbConnectionVO createVbConnextionVO(String token) {
     VbConnectionVO vbConnectionVO = new VbConnectionVO();
-    String[] info = token.split("_");
+    String[] info = token.split(AccountConstant.token_split_char);
     vbConnectionVO.setUserIp(request.getLocalAddr());
     vbConnectionVO.setUserName(info[0]);
     vbConnectionVO.setDepartmentName(info[1]);

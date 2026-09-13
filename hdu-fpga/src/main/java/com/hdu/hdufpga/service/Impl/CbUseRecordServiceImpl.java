@@ -1,7 +1,7 @@
 package com.hdu.hdufpga.service.Impl;
 
 import com.github.yulichang.base.MPJBaseServiceImpl;
-import com.hdu.hdufpga.entity.constant.RedisConstant;
+import com.hdu.hdufpga.entity.constant.AccountConstant;
 import com.hdu.hdufpga.entity.po.CbUseRecordPO;
 import com.hdu.hdufpga.entity.vo.UserConnectionVO;
 import com.hdu.hdufpga.mapper.CbUseRecordMapper;
@@ -16,7 +16,7 @@ public class CbUseRecordServiceImpl extends MPJBaseServiceImpl<CbUseRecordMapper
   public Boolean saveUseRecord(UserConnectionVO userConnectionVO, Long addActiveTime) {
     CbUseRecordPO cbUseRecordPO = new CbUseRecordPO();
     String token = userConnectionVO.getToken();
-    String[] info = token.split("_");
+    String[] info = token.split(AccountConstant.token_split_char);
     cbUseRecordPO.setCbId(userConnectionVO.getLongId());
     cbUseRecordPO.setCbIp(userConnectionVO.getCbIp());
     cbUseRecordPO.setUserName(info[0]);
